@@ -63,7 +63,7 @@ include '../function.php'; // Verify this path is correct and adjust if necessar
                         <i class="fa fa-phone-alt fa-2x text-primary me-4"></i>
                         <div>
                             <h4>Telephone</h4>
-                            <p class="mb-2">(+94) 7145496</p>
+                            <p class="mb-2">(+94) 71454789</p>
                         </div>
                     </div>
                 </div>
