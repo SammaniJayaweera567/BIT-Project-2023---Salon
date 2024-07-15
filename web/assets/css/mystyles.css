@@ -1,0 +1,93 @@
+section#contact {
+    margin-top: 200px;
+}
+
+.container.Regiter-page {
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px !important;
+    border-radius: 15px !important;
+    width: 1100px;
+    margin: 0 auto;
+}
+
+.register-image img {
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px !important;
+}
+
+section#login {
+    height: 650px;
+    overflow: hidden;
+    width: 1100px;
+    margin: 0 auto;
+    margin-top: 200px;
+    margin-bottom: 100px;
+    border-radius: 15px !important;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px !important;
+}
+
+.login-image img {
+    object-fit: cover;
+    border-radius: 15px !important;
+}
+
+
+.fa-shopping-bag:before {
+    content: "\f290";
+    color: #CA9139;
+}
+
+.btn-check-avai {
+    background: #0C1E2B !important;
+}
+
+.text-hero {
+    color: #DFC27D;
+}
+
+.hero-secondary-text {
+    color: #2D556A;
+}
+
+.carousel-item a.carusel-title {
+    background: linear-gradient(rgba(223, 194, 125, 0.7), rgba(223, 194, 125, 0.7)) !important;
+}
+
+.sub-headers {
+    color: #2D556A !important;
+}
+
+ul.services-types {
+    list-style: none !important;
+    padding: 0 !important;
+}
+
+.rounded-service{
+    border-radius: 10px !important;
+    position: relative;
+    background: linear-gradient(rgba(32,30,33), rgba(32,30,33)) !important;
+}
+
+.rounded-service a{
+    color: #DFC27D;
+}
+
+img.img-fluid.w-100.h-auto.rounded.bridal-service,
+img.img-fluid.w-100.h-100.rounded.bridal-service{
+    width: 100%;
+    max-width: 155px;
+    max-height: 150px;
+    object-fit: cover;
+}
+
+
+/*About Us Page*/
+.icon-viss-miss {
+    font-size: 60px;
+    color: #CA9139;
+}
+
+.vission-mission-section .card .card-body {
+    box-shadow: rgba(12, 29, 44, 0.8) -5px 5px, rgba(12, 29, 44, 0.5) -10px 10px;
+    border-radius: 10px;
+}

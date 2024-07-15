@@ -1,0 +1,33 @@
+body.login-page.login-page-bg {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: scroll;
+    background-color: rgb(0 0 0 / 78%);
+    background-blend-mode: overlay;
+}
+
+.primary-bg-color{
+    background-color: #0b0b0b;
+}
+
+.primary-text-color{
+    color: #0b0b0b;
+}
+
+.login-card-body, .register-card-body {
+    border-radius: 30px !important;
+    padding: 50px;
+}
+
+.card.login-card {
+    border-radius: 15px;
+}
+
+.login-box, .register-box {
+    width: 450px;
+}
+
+.layout-fixed .main-sidebar {
+    background-color: #0b0b0b;
+}
