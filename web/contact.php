@@ -59,6 +59,7 @@ include '../function.php'; // Verify this path is correct and adjust if necessar
                             <p class="mb-2">sammanijayaweera0411@gmail.com.com</p>
                         </div>
                     </div>
+                    <!--Add Phone no -->
                     <div class="d-flex p-4 rounded bg-white">
                         <i class="fa fa-phone-alt fa-2x text-primary me-4"></i>
                         <div>
