@@ -6,7 +6,7 @@ include '../function.php'; // Verify this path is correct and adjust if necessar
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $customer_id = $_SESSION['customer_id'];
-    $services = $_POST['services'];
+    $services = implode(", ", $_POST['services']);
     $beautician = $_POST['beautician'];
     $date = $_POST['date'];
     $time = $_POST['time'];
@@ -27,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 
 <main id="main">
-
     <section class="mt-5 py-5 booking-section">
         <div class="container mt-5 py-5">
             <h3 class="mb-4 text-center text-blue py-3">Salon Booking</h3>
@@ -45,12 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <div class="mb-3">
                                     <label for="mainService" class="form-label">Select Main Service</label>
                                     <select class="form-select" id="mainService" multiple>
-                                        <option value="skinCare">Skin Care</option>
-                                        <option value="hairCare">Hair Care</option>
-                                        <option value="nailCare">Nail Care</option>
-                                        <option value="footCare">Foot Care</option>
-                                        <option value="dressingMakeup">Dressing & Makeup</option>
-                                        <option value="bridal">Bridal</option>
+                                        <option value="skinCare">Skin Care ($50-$80)</option>
+                                        <option value="hairCare">Hair Care ($25-$40)</option>
+                                        <option value="nailCare">Nail Care ($20-$40)</option>
+                                        <option value="footCare">Foot Care ($20-$35)</option>
+                                        <option value="dressingMakeup">Dressing & Makeup ($40-$70)</option>
+                                        <option value="bridal">Bridal ($80-$200)</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -64,6 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <select class="form-select" id="service" multiple disabled>
                                         <option value="">Choose...</option>
                                     </select>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-danger" id="cancelService">Cancel Selected Service</button>
                                 </div>
                             </div>
                         </div>
@@ -147,20 +149,187 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('mainService').addEventListener('change', function() {
-        // Implement sub-service and service dropdowns logic here
+        updateSubServiceOptions();
+    });
+
+    document.getElementById('subService').addEventListener('change', function() {
+        updateServiceOptions();
     });
 
     document.getElementById('service').addEventListener('change', function() {
-        // Implement selected services list logic here
+        addSelectedServices();
+    });
+
+    document.getElementById('cancelService').addEventListener('click', function() {
+        cancelSelectedService();
     });
 
     document.getElementById('saveBooking').addEventListener('click', function() {
-        // Implement total price calculation logic here
+        saveBooking();
     });
 });
-</script>
 
+const mainServiceData = {
+    skinCare: {
+        subServices: {
+            facial: ['Basic Facial ($50)', 'Advanced Facial ($70)'],
+            treatment: ['Acne Treatment ($60)', 'Anti-Aging Treatment ($80)']
+        }
+    },
+    hairCare: {
+        subServices: {
+            cut: ['Trim ($30)', 'Layer Cut ($40)'],
+            style: ['Blow Dry ($25)', 'Curling ($35)']
+        }
+    },
+    nailCare: {
+        subServices: {
+            manicure: ['Basic Manicure ($20)', 'Gel Manicure ($30)'],
+            pedicure: ['Basic Pedicure ($25)', 'Spa Pedicure ($40)']
+        }
+    },
+    footCare: {
+        subServices: {
+            massage: ['Foot Massage ($20)', 'Foot Reflexology ($30)'],
+            treatment: ['Callus Treatment ($35)', 'Moisturizing Treatment ($25)']
+        }
+    },
+    dressingMakeup: {
+        subServices: {
+            makeup: ['Day Makeup ($50)', 'Evening Makeup ($70)'],
+            dressing: ['Casual Dressing ($40)', 'Formal Dressing ($60)']
+        }
+    },
+    bridal: {
+        subServices: {
+            package: ['Bridal Makeup ($200)', 'Bridal Hair Styling ($150)'],
+            trial: ['Makeup Trial ($100)', 'Hair Trial ($80)']
+        }
+    }
+};
+
+let selectedServices = [];
+const servicePrices = {
+    'Basic Facial ($50)': 50,
+    'Advanced Facial ($70)': 70,
+    'Acne Treatment ($60)': 60,
+    'Anti-Aging Treatment ($80)': 80,
+    'Trim ($30)': 30,
+    'Layer Cut ($40)': 40,
+    'Blow Dry ($25)': 25,
+    'Curling ($35)': 35,
+    'Basic Manicure ($20)': 20,
+    'Gel Manicure ($30)': 30,
+    'Basic Pedicure ($25)': 25,
+    'Spa Pedicure ($40)': 40,
+    'Foot Massage ($20)': 20,
+    'Foot Reflexology ($30)': 30,
+    'Callus Treatment ($35)': 35,
+    'Moisturizing Treatment ($25)': 25,
+    'Day Makeup ($50)': 50,
+    'Evening Makeup ($70)': 70,
+    'Casual Dressing ($40)': 40,
+    'Formal Dressing ($60)': 60,
+    'Bridal Makeup ($200)': 200,
+    'Bridal Hair Styling ($150)': 150,
+    'Makeup Trial ($100)': 100,
+    'Hair Trial ($80)': 80
+};
+
+function updateSubServiceOptions() {
+    const selectedMainServices = Array.from(document.getElementById('mainService').selectedOptions).map(option => option.value);
+    const subServiceSelect = document.getElementById('subService');
+    const serviceSelect = document.getElementById('service');
+
+    subServiceSelect.innerHTML = '<option value="">Choose...</option>';
+    serviceSelect.innerHTML = '<option value="">Choose...</option>';
+    subServiceSelect.disabled = true;
+    serviceSelect.disabled = true;
+
+    if (selectedMainServices.length > 0) {
+        selectedMainServices.forEach(mainService => {
+            const subServices = mainServiceData[mainService].subServices;
+            for (const subService in subServices) {
+                subServiceSelect.innerHTML += `<option value="${subService}" data-main-service="${mainService}">${subService}</option>`;
+            }
+        });
+        subServiceSelect.disabled = false;
+    }
+}
+
+function updateServiceOptions() {
+    const selectedSubServices = Array.from(document.getElementById('subService').selectedOptions).map(option => option.value);
+    const serviceSelect = document.getElementById('service');
+    serviceSelect.innerHTML = '<option value="">Choose...</option>';
+    serviceSelect.disabled = true;
+
+    if (selectedSubServices.length > 0) {
+        selectedSubServices.forEach(subService => {
+            const mainService = document.getElementById('subService').querySelector(`option[value="${subService}"]`).dataset.mainService;
+            const services = mainServiceData[mainService].subServices[subService];
+            services.forEach(service => {
+                serviceSelect.innerHTML += `<option value="${service}" data-main-service="${mainService}" data-sub-service="${subService}">${service}</option>`;
+            });
+        });
+        serviceSelect.disabled = false;
+    }
+}
+
+function addSelectedServices() {
+    const selectedOptions = Array.from(document.getElementById('service').selectedOptions);
+    selectedOptions.forEach(option => {
+        const service = option.value;
+        if (service && !selectedServices.includes(service) && selectedServices.length < 5) {
+            selectedServices.push(service);
+        }
+    });
+    updateSelectedServicesList();
+    updateTotalPrice();
+}
+
+function cancelSelectedService() {
+    if (selectedServices.length > 0) {
+        selectedServices.pop();
+        updateSelectedServicesList();
+        updateTotalPrice();
+    } else {
+        alert('No services to cancel.');
+    }
+}
+
+function updateSelectedServicesList() {
+    const selectedServicesList = document.getElementById('selectedServicesList');
+    selectedServicesList.innerHTML = '';
+    selectedServices.forEach(service => {
+        selectedServicesList.innerHTML += `<li class="list-group-item">${service}</li>`;
+    });
+}
+
+function updateTotalPrice() {
+    const totalPrice = selectedServices.reduce((total, service) => total + servicePrices[service], 0);
+    document.getElementById('total').innerText = totalPrice;
+}
+
+function saveBooking() {
+    if (selectedServices.length === 0) {
+        alert('Please select at least one service.');
+        return;
+    }
+    const beautician = document.getElementById('beautician').value;
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+
+    if (!beautician || !date || !time) {
+        alert('Please select beautician, date, and time.');
+        return;
+    }
+
+    // Here you can add the code to save the booking data via AJAX or a form submission.
+    alert('Booking saved successfully!');
+}
+</script>
 <?php
 include 'footer.php';
 ob_end_flush();
 ?>
+

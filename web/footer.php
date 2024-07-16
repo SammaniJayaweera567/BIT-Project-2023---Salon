@@ -37,14 +37,14 @@
                     <a class="btn-link" href="gallery.php">Gallery</a>
                     <a class="btn-link" href="product.php">Products</a>
                     <a class="btn-link" href="contact.php">Contact Us</a>
-                    <a class="btn-link" href="">Return Policy</a>
+                    <!--<a class="btn-link" href="">Return Policy</a>-->
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="d-flex flex-column text-start footer-item">
                     <h4 class="text-light mb-3">Account</h4>
                     <a class="btn-link" href="profile_management.php">My Account</a>
-                    <a class="btn-link" href="product.php">Products</a>
+                    <!--<a class="btn-link" href="product.php">Products</a>-->
                     <a class="btn-link" href="cart.php">Shopping Cart</a>
                     <a class="btn-link" href="chackout.php">Checkout</a>
                     <a class="btn-link" href="order_history.php">Order History</a>
@@ -169,156 +169,7 @@
 
 </script>
 
-<script>
-    const mainServiceData = {
-        skinCare: {
-            subServices: {
-                facial: ['Basic Facial', 'Advanced Facial'],
-                treatment: ['Acne Treatment', 'Anti-Aging Treatment']
-            }
-        },
-        hairCare: {
-            subServices: {
-                cut: ['Trim', 'Layer Cut'],
-                style: ['Blow Dry', 'Curling']
-            }
-        },
-        nailCare: {
-            subServices: {
-                manicure: ['Basic Manicure', 'Gel Manicure'],
-                pedicure: ['Basic Pedicure', 'Spa Pedicure']
-            }
-        },
-        footCare: {
-            subServices: {
-                massage: ['Foot Massage', 'Foot Reflexology'],
-                treatment: ['Callus Treatment', 'Moisturizing Treatment']
-            }
-        },
-        dressingMakeup: {
-            subServices: {
-                makeup: ['Day Makeup', 'Evening Makeup'],
-                dressing: ['Casual Dressing', 'Formal Dressing']
-            }
-        },
-        bridal: {
-            subServices: {
-                package: ['Bridal Makeup', 'Bridal Hair Styling'],
-                trial: ['Makeup Trial', 'Hair Trial']
-            }
-        }
-    };
 
-    let selectedServices = [];
-    const servicePrices = {
-        'Basic Facial': 50,
-        'Advanced Facial': 70,
-        'Acne Treatment': 60,
-        'Anti-Aging Treatment': 80,
-        'Trim': 30,
-        'Layer Cut': 40,
-        'Blow Dry': 25,
-        'Curling': 35,
-        'Basic Manicure': 20,
-        'Gel Manicure': 30,
-        'Basic Pedicure': 25,
-        'Spa Pedicure': 40,
-        'Foot Massage': 20,
-        'Foot Reflexology': 30,
-        'Callus Treatment': 35,
-        'Moisturizing Treatment': 25,
-        'Day Makeup': 50,
-        'Evening Makeup': 70,
-        'Casual Dressing': 40,
-        'Formal Dressing': 60,
-        'Bridal Makeup': 200,
-        'Bridal Hair Styling': 150,
-        'Makeup Trial': 100,
-        'Hair Trial': 80
-    };
-
-    document.getElementById('mainService').addEventListener('change', function() {
-        const selectedMainServices = Array.from(this.selectedOptions).map(option => option.value);
-        const subServiceSelect = document.getElementById('subService');
-        const serviceSelect = document.getElementById('service');
-
-        subServiceSelect.innerHTML = '<option value="">Choose...</option>';
-        serviceSelect.innerHTML = '<option value="">Choose...</option>';
-        subServiceSelect.disabled = true;
-        serviceSelect.disabled = true;
-
-        if (selectedMainServices.length > 0) {
-            selectedMainServices.forEach(mainService => {
-                const subServices = mainServiceData[mainService].subServices;
-                for (const subService in subServices) {
-                    subServiceSelect.innerHTML += `<option value="${subService}" data-main-service="${mainService}">${subService}</option>`;
-                }
-            });
-            subServiceSelect.disabled = false;
-        }
-    });
-
-    document.getElementById('subService').addEventListener('change', function() {
-        const selectedSubServices = Array.from(this.selectedOptions).map(option => option.value);
-        const serviceSelect = document.getElementById('service');
-        serviceSelect.innerHTML = '<option value="">Choose...</option>';
-        serviceSelect.disabled = true;
-
-        if (selectedSubServices.length > 0) {
-            selectedSubServices.forEach(subService => {
-                const mainService = this.querySelector(`option[value="${subService}"]`).dataset.mainService;
-                const services = mainServiceData[mainService].subServices[subService];
-                services.forEach(service => {
-                    serviceSelect.innerHTML += `<option value="${service}" data-main-service="${mainService}" data-sub-service="${subService}">${service}</option>`;
-                });
-            });
-            serviceSelect.disabled = false;
-        }
-    });
-
-    document.getElementById('service').addEventListener('change', function() {
-        const selectedOptions = Array.from(this.selectedOptions);
-        selectedOptions.forEach(option => {
-            const service = option.value;
-            if (service && !selectedServices.includes(service) && selectedServices.length < 5) {
-                selectedServices.push(service);
-            }
-        });
-        updateSelectedServicesList();
-        updateTotalPrice();
-    });
-
-    document.getElementById('saveBooking').addEventListener('click', function() {
-        if (selectedServices.length === 0) {
-            alert('Please select at least one service.');
-            return;
-        }
-        const beautician = document.getElementById('beautician').value;
-        const date = document.getElementById('date').value;
-        const time = document.getElementById('time').value;
-
-        if (!beautician || !date || !time) {
-            alert('Please select beautician, date, and time.');
-            return;
-        }
-
-        alert('Booking saved successfully!');
-        // Here you can add the code to save the booking data
-    });
-
-    function updateSelectedServicesList() {
-        const selectedServicesList = document.getElementById('selectedServicesList');
-        selectedServicesList.innerHTML = '';
-        selectedServices.forEach(service => {
-            selectedServicesList.innerHTML += `<li class="list-group-item">${service}</li>`;
-        });
-    }
-
-    function updateTotalPrice() {
-        const totalPrice = selectedServices.reduce((total, service) => total + servicePrices[service], 0);
-        document.getElementById('total').innerText = totalPrice;
-    }
-</script>
 
 <script>
     function updateProfilePicture(input) {

@@ -758,3 +758,8 @@ button.btn.btn-primary.me-4.rounded-pill.home-hero-buttoncontainer-fluid.service
     max-width: 60% !important;
 }
 /*Profile_management page styles end*/
+
+.error {
+    color: red;
+    font-size: 0.9em;
+}

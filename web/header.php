@@ -59,7 +59,7 @@ include '../function.php';
                 <div class="d-flex justify-content-between">
                     <div class="top-info ps-2">
                         <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-white"></i> <a href="#" class="text-white">No.07, Hungama Road, Angunakolapelessa.</a></small>
-                        <small class="me-3"><i class="fas fa-envelope me-2 text-white"></i><a href="#" class="text-white">Email@Example.com</a></small>
+                        <small class="me-3"><i class="fas fa-envelope me-2 text-white"></i><a href="#" class="text-white">sammanijayaweera0411@gmail.com</a></small>
                     </div>
                     <div class="top-link pe-2">
                         <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
@@ -91,11 +91,11 @@ include '../function.php';
                                         <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
                                     </a>    
                                 </li>
-                                <li><a href="#" class="position-relative me-4 my-auto">
-                                        <i class="fas fa-heart fa-2x text-dark-yellow"></i>
-                                        <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
+                                <!--<li><a href="#" class="position-relative me-4 my-auto">
+                                    <i class="fas fa-heart fa-2x text-dark-yellow"></i>
+                                    <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
                                     </a>    
-                                </li>
+                                    </li>-->
 
                                 <?php
                                 // Set the DB Connection

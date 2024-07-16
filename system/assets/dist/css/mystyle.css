@@ -1,3 +1,54 @@
+/*Background and Text Color Start*/
+.bg-dark-yellow{
+    background-color: #ca9139;
+}
+
+.text-dark-yellow{
+    color: #ca9139;
+}
+
+.bg-light-yellow{
+    background-color: #dfc27d;
+}
+
+.text-light-yellow{
+    color: #dfc27d;
+}
+
+.bg-dark-black{
+    background-color: #201e21;
+}
+
+.text-dark-black{
+    color: #201e21;
+}
+
+.bg-blue{
+    background-color: #2d556a;
+}
+
+.text-blue{
+    color: #2d556a;
+}
+
+.bg-blue{
+    background-color: #2d556a;
+}
+
+.text-blue{
+    color: #2d556a;
+}
+
+.bg-dark-blue{
+    background-color: #0c1f2a;
+}
+
+.text-dark-blue{
+    color: #0c1f2a;
+}
+
+/*Background and Text Color End*/
+
 body.login-page.login-page-bg {
     background-repeat: no-repeat;
     background-size: cover;

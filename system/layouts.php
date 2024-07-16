@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 if (!isset($_SESSION['USERID'])) {
@@ -45,17 +46,17 @@ if (!isset($_SESSION['USERID'])) {
             <!-- Navbar -->
             <nav class="main-header navbar navbar-expand navbar-white navbar-light">
                 <!-- Left navbar links -->
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                    </li>
-                    <li class="nav-item d-none d-sm-inline-block">
-                        <a href="index3.html" class="nav-link">Home</a>
-                    </li>
-                    <li class="nav-item d-none d-sm-inline-block">
-                        <a href="#" class="nav-link">Contact</a>
-                    </li>
-                </ul>
+                <!--<ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                        </li>
+                        <li class="nav-item d-none d-sm-inline-block">
+                            <a href="index3.html" class="nav-link">Home</a>
+                        </li>
+                        <li class="nav-item d-none d-sm-inline-block">
+                            <a href="#" class="nav-link">Contact</a>
+                        </li>
+                    </ul>-->
 
                 <!-- Right navbar links -->
                 <ul class="navbar-nav ml-auto">
@@ -180,7 +181,7 @@ if (!isset($_SESSION['USERID'])) {
             </nav>
             <!-- /.navbar -->
             <!-- Main Sidebar Container -->
-            <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <aside class="main-sidebar sidebar-dark-primary elevation-4 bg-dark-black">
                 <!-- Brand Logo -->
                 <a href="index3.html" class="brand-link">
                     <img src="<?= SYS_URL ?>assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
@@ -209,29 +210,29 @@ if (!isset($_SESSION['USERID'])) {
                         </div>
                     </div>
 
-                     <?php
+                    <?php
                     $userid = $_SESSION['USERID'];
-                    $db= dbConn();
-                    $sql="SELECT * FROM  user_modules um INNER JOIN modules m ON m.Id=um.ModuleId WHERE um.UserId='$userid' AND m.Status='1' ORDER BY Idx ASC";
-                    $result=$db->query($sql);
+                    $db = dbConn();
+                    $sql = "SELECT * FROM  user_modules um INNER JOIN modules m ON m.Id=um.ModuleId WHERE um.UserId='$userid' AND m.Status='1' ORDER BY Idx ASC";
+                    $result = $db->query($sql);
                     ?> 
-                    
+
                     <!-- Sidebar Menu -->
                     <nav class="mt-2">
                         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                           <?php
-                            if($result->num_rows>0){
-                                while ($row=$result->fetch_assoc()){
-                            ?>
-                            <li class="nav-item">
-                                <a href="<?= SYS_URL ?><?= $row['Path'] ?>/<?=  $row['File'] ?>.php" class="nav-link">
-                                    <i class="nav-icon <?= $row['Icon'] ?>"></i>
-                                    <p>
-                                        <?= $row['Name'] ?>                                                                      
-                                    </p>
-                                </a>
-                            </li>
                             <?php
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    ?>
+                                    <li class="nav-item">
+                                        <a href="<?= SYS_URL ?><?= $row['Path'] ?>/<?= $row['File'] ?>.php" class="nav-link">
+                                            <i class="nav-icon <?= $row['Icon'] ?>"></i>
+                                            <p>
+                                                <?= $row['Name'] ?>                                                                      
+                                            </p>
+                                        </a>
+                                    </li>
+                                    <?php
                                 }
                             }
                             ?>
@@ -252,8 +253,8 @@ if (!isset($_SESSION['USERID'])) {
                             </div><!-- /.col -->
                             <div class="col-sm-6">
                                 <ol class="breadcrumb float-sm-right">
-                                    <li class="breadcrumb-item"><a href="#"><?=@$breadcrumb_item ?></a></li>
-                                    <li class="breadcrumb-item active"><?=@$breadcrumb_item_active ?></li>
+                                    <li class="breadcrumb-item"><a href="#"><?= @$breadcrumb_item ?></a></li>
+                                    <li class="breadcrumb-item active"><?= @$breadcrumb_item_active ?></li>
                                 </ol>
                             </div><!-- /.col -->
                         </div><!-- /.row -->
