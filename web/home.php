@@ -28,17 +28,17 @@
                 <p class="mb-4">Indulge in luxury treatments and personalized services with our expert stylists. Book your appointment today for a unique beauty and relaxation experience.</p>
                 <a  href="booking.php" class="btn btn-primary me-4 py-2 rounded-pill px-3shop  now">Book Your Appointment</a>
 
-                <!--                <form method="post" action="check_availability.php">
-                                    <div class="row g-3">
-                                        <div class="col">
-                                            <input type="date" class="form-control" placeholder="Select a Date" name="date">
-                                        </div>
-                                        <div class="col">
-                                            <input type="time" class="form-control" placeholder="Select a Time" name="start_time">
-                                        </div>
-                                        <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 rounded-pill text-white btn-check-avai" style="top: 0; right: 25%;">Check Availability</button>
-                                    </div>
-                                </form>-->
+                <form method="post" action="check_availability.php">
+                    <div class="row g-3">
+                        <div class="col">
+                            <input type="date" class="form-control" placeholder="Select a Date" name="date">
+                        </div>
+                        <div class="col">
+                            <input type="time" class="form-control" placeholder="Select a Time" name="start_time">
+                        </div>
+                        <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 rounded-pill text-white btn-check-avai" style="top: 0; right: 25%;">Check Availability</button>
+                    </div>
+                </form>
             </div>
             <div class="col-md-12 col-lg-5">
                 <div id="carouselId" class="carousel slide position-relative" data-bs-ride="carousel">
@@ -277,7 +277,7 @@
                         <a href="product.php">
                             <button class="btn btn-primary border-2 py-3 px-4 rounded-pill text-white d-block align-items-center banner-products-shop bg-dark-yellow" style="top: 0; right: 25%;">Shop Now</button>
                         </a>
-                        
+
                     </div>
                 </div>
             </div>

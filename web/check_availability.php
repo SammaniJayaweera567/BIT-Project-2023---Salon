@@ -1,5 +1,5 @@
 <?php
-include 'header.php';
+include 'header2.php';
 include '../function.php';
 ?>
 <main id="main">
@@ -28,13 +28,13 @@ include '../function.php';
                 echo "<h2 class='text-warning'>Slot is not available for $date at $start_time. The stylist might be occupied with another client.</h2>";
             } else {
                 echo "<h2 class='text-success'>Slot is available for $date at $start_time.</h2>";
-                $_SESSION['action']='booking';
-                $_SESSION['date']=$date;
-                $_SESSION['time']=$start_time;
+                $_SESSION['action'] = 'booking';
+                $_SESSION['date'] = $date;
+                $_SESSION['time'] = $start_time;
                 if (isset($_SESSION['USERID'])) {
                     echo "<a href='dashboard.php'>Booking Now</a>";
 //                    echo "Book Now";
-    } else {
+                } else {
                     echo "<a href='login.php'>Please Login before make booking</a>";
                 }
             }
