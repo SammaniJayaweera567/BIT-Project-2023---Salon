@@ -202,8 +202,10 @@ const mainServiceData = {
     },
     bridal: {
         subServices: {
-            package: ['Bridal Makeup ($200)', 'Bridal Hair Styling ($150)'],
-            trial: ['Makeup Trial ($100)', 'Hair Trial ($80)']
+            Kandiyan: ['Package 1 ($200)', 'Package 2 ($200)', 'Package 3 ($200)', 'Package 4 ($200)'],
+            Western: ['Package 1 ($200)', 'Package 2 ($200)', 'Package 3 ($200)', 'Package 4 ($200)'],
+            Indian: ['Package 1 ($200)', 'Package 2 ($200)', 'Package 3 ($200)', 'Package 4 ($200)'],
+            Hindu: ['Package 1 ($200)', 'Package 2 ($200)', 'Package 3 ($200)', 'Package 4 ($200)']
         }
     }
 };
