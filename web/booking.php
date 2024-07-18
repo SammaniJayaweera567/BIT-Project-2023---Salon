@@ -12,15 +12,18 @@ $result = $conn->query($sql);
 $servicesData = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        $servicesData[$row['ServiceCategoryName']][$row['SubServiceName']][] = [
-            'ServiceId' => $row['ServiceId'],
+        $servicesData[$row['ServiceCategoryName']][$row['SubServiceName']][$row['ServiceId']] = [
             'ServiceName' => $row['ServiceName'],
             'Description' => $row['Description'],
-            'Duration' => $row['Duration'],
+            'Duration' => (int)$row['Duration'],  // Explicitly cast to integer
             'Price' => $row['Price']
         ];
     }
 }
+
+// For debugging: output the JSON data right before the closing </script> tag
+echo '<script>console.log(' . json_encode($servicesData) . ');</script>';
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $customer_id = $_SESSION['customer_id'];
@@ -145,9 +148,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <label class="form-label">Selected Services:</label>
                                         <ul id="selectedServicesList" class="list-group"></ul>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Total Price: LKR <span id="total">0</span></label>
-                                    </div>
+                                    
+                                   
                                     <button type="button" class="btn btn-primary" id="saveBooking">Save Booking</button>
                                 </div>
                             </div>
@@ -190,46 +192,94 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         subServiceSelect.disabled = false;
     });
 
-    subServiceSelect.addEventListener('change', () => {
-    serviceSelect.innerHTML = '<option value="">Choose...</option>';  // Clear service options
+subServiceSelect.addEventListener('change', () => {
+    serviceSelect.innerHTML = '<option value="">Choose...</option>'; // Clear service options
 
     const selectedMainServices = Array.from(mainServiceSelect.selectedOptions).map(opt => opt.value);
     const selectedSubServices = Array.from(subServiceSelect.selectedOptions).map(opt => opt.value);
 
     for (const mainService of selectedMainServices) {
         for (const subService of selectedSubServices) {
-            const services = mainServiceData[mainService][subService];
-            for (const service of services) {
+            // Access services by ServiceId
+            const services = mainServiceData[mainService][subService]; 
+            for (const serviceId in services) { // Iterate over service IDs
+                const service = services[serviceId];
                 const option = document.createElement('option');
-                option.value = service.ServiceId; 
+                option.value = serviceId;
 
                 // Convert price to number and format
                 const price = parseFloat(service.Price).toFixed(2); 
-                option.text = `${service.ServiceName} (LKR ${price})`; 
+
+                // Ensure service.Duration is available and is a number
+                const duration = service.Duration; // No need for type check as it's already an int
+
+                option.text = `${service.ServiceName} (LKR ${price}) - ${duration} mins`;
+                option.dataset.duration = duration;
                 serviceSelect.add(option);
             }
         }
     }
     serviceSelect.disabled = false;
 });
-serviceSelect.addEventListener('change', () => {
-    const selectedOptions = Array.from(serviceSelect.selectedOptions);
-    selectedOptions.forEach(option => {
-        const serviceId = option.value;
-        const serviceName = option.text;
-        const priceMatch = serviceName.match(/\(LKR (\d+\.\d+)\)/);
-        const price = priceMatch ? parseFloat(priceMatch[1]) : 0;
 
-        if (serviceId && !selectedServices[serviceId]) {
-            selectedServices[serviceId] = { name: serviceName, price: price };
+serviceSelect.addEventListener('change', () => {
+  const selectedOptions = Array.from(serviceSelect.selectedOptions);
+
+  // Update selectedServices, but keep existing entries
+  selectedOptions.forEach(option => {
+    const serviceId = option.value;
+    if (!selectedServices.hasOwnProperty(serviceId)) {
+      // Find the service object in mainServiceData
+      for (const mainService in mainServiceData) {
+        for (const subService in mainServiceData[mainService]) {
+          if (mainServiceData[mainService][subService][serviceId]) {
+            const service = mainServiceData[mainService][subService][serviceId];
+            const price = parseFloat(service.Price).toFixed(2);
+            const duration = service.Duration; 
+            selectedServices[serviceId] = { 
+              name: `${service.ServiceName} (LKR ${price}) - ${duration} mins`,
+              price: price,
+              duration: duration
+            };
+            break; 
+          }
         }
-    });
-    updateSelectedServicesList();
+      }
+    }
+  });
+  updateSelectedServicesList();
 });
 
+function updateSelectedServices() {
+  selectedServices = {}; // Reset selectedServices
+
+  const selectedOptions = Array.from(serviceSelect.selectedOptions);
+  selectedOptions.forEach(option => {
+    const serviceId = option.value;
+
+    // Find the service object in mainServiceData
+    for (const mainService in mainServiceData) {
+      for (const subService in mainServiceData[mainService]) {
+        if (mainServiceData[mainService][subService][serviceId]) {
+          const service = mainServiceData[mainService][subService][serviceId];
+          const price = parseFloat(service.Price).toFixed(2);
+          const duration = service.Duration; // Get duration directly
+
+          selectedServices[serviceId] = {
+            name: `${service.ServiceName} (LKR ${price}) - ${duration} mins`, // Update name to include duration
+            price: price,
+            duration: duration
+          };
+          break; 
+        }
+      }
+    }
+  });
+}
 function updateSelectedServicesList() {
     selectedServicesList.innerHTML = '';
     let totalPrice = 0;
+    let totalDuration = 0;
     for (const serviceId in selectedServices) {
         const service = selectedServices[serviceId];
         selectedServicesList.innerHTML += `
@@ -237,16 +287,35 @@ function updateSelectedServicesList() {
                 ${service.name}
                 <button type="button" class="btn btn-danger btn-sm cancel-service-btn" data-service-id="${serviceId}">Cancel</button>
             </li>`;
-        totalPrice += service.price;
+        totalPrice += parseFloat(service.price); 
+        totalDuration += service.duration; 
     }
-    totalPriceElement.innerText = totalPrice.toFixed(2);
 
-    // Attach event listeners to cancel buttons after updating the list
+    // Create/Update the total price element dynamically
+    let totalPriceElement = selectedServicesList.parentNode.querySelector('div.total-price'); // Find existing
+    if (!totalPriceElement) {
+        totalPriceElement = document.createElement('div');
+        totalPriceElement.className = 'total-price mb-3'; // Add a class for styling
+        selectedServicesList.parentNode.insertBefore(totalPriceElement, selectedServicesList.nextSibling);
+    }
+    totalPriceElement.innerHTML = `<label class="form-label">Total Price: LKR ${totalPrice.toFixed(2)}</label>`;
+
+    // Create/Update the total duration element dynamically
+    let durationElement = selectedServicesList.parentNode.querySelector('div.total-duration'); // Find existing
+    if (!durationElement) {
+        durationElement = document.createElement('div');
+        durationElement.className = 'total-duration mb-3'; // Add a class for styling
+        selectedServicesList.parentNode.insertBefore(durationElement, totalPriceElement.nextSibling);
+    }
+    durationElement.innerHTML = `<label class="form-label">Total Duration: ${totalDuration} mins</label>`;
+
+    // Attach event listeners to cancel buttons
     const cancelButtons = document.querySelectorAll('.cancel-service-btn');
     cancelButtons.forEach(button => {
         button.addEventListener('click', cancelSelectedService);
     });
 }
+
 
 function cancelSelectedService(event) {
     const serviceId = event.target.dataset.serviceId;
