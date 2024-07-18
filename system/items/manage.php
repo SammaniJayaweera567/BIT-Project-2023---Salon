@@ -2,89 +2,82 @@
 ob_start();
 include_once '../init.php';
 
-$link = "Items Management";
-$breadcrumb_item = "Items";
-$breadcrumb_item_active = "Manage";
+$link = "Item Management";
+$breadcrumb_item = "Item";
+$breadcrumb_item_active = "Manage Items";
+
+$db = dbConn();
+
+// Fetch data from the merged tables
+$query = "
+    SELECT 
+        items.id AS item_id,
+        items.item_name,
+        item_category.category_name,
+        item_category.status AS category_status,
+        item_stock.qty,
+        item_stock.unit_price,
+        item_stock.purchase_date,
+        item_stock.issued_qty
+    FROM 
+        items
+    LEFT JOIN 
+        item_category ON items.id = item_category.id
+    LEFT JOIN 
+        item_stock ON items.id = item_stock.item_id
+";
+$result = $db->query($query);
 ?>
 
 <div class="row">
     <div class="col-12">
-        <a href="<?= SYS_URL ?>items/add.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> New</a>
-        <div class="card">
+        <a href="<?= SYS_URL ?>items/add.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> Add New Item</a>
+        <a href="<?= SYS_URL ?>items/add_item_category.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> Add Item Category</a>
+        <a href="<?= SYS_URL ?>items/add_item_stock.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> Add Item Stock</a>
+        <div class="card card-primary">
             <div class="card-header">
-                <h3 class="card-title">Item Details</h3>
-
-                <div class="card-tools">
-                    <div class="input-group input-group-sm" style="width: 150px;">
-                        <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
-
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-default">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <h3 class="card-title">Manage Items</h3>
             </div>
-            <!-- /.card-header -->
-            <div class="card-body table-responsive p-0">
-                <?php
-                $db = dbConn();
-                $sql = "SELECT * FROM items";
-                $result = $db->query($sql);
-                ?>
-                <table class="table table-hover text-nowrap">
+            <div class="card-body">
+                <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th>Item ID</th>
                             <th>Item Name</th>
-                            <th>Item Category</th>
-                            <th>Item Image</th>
-                            <th>Status</th>
-                            <th></th>
-                            <th></th>
+                            <th>Category Name</th>
+                            <th>Category Status</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Purchase Date</th>
+                            <th>Issued Quantity</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        if ($result->num_rows > 0) {
-                            while ($row = $result->fetch_assoc()) {
-                                ?>
-                                <tr>
-                                    <td><?= $row['id'] ?></td>
-                                    <td><?= $row['item_name'] ?></td>
-                                    <td><?= $row['item_category'] ?></td>
-                                    <td><img src="<?= $row['item_image'] ?>" alt="<?= $row['item_name'] ?>" class="img-fluid" width="50"></td>
-                                    <td><?= $row['status'] ?></td>
-                                    <td><a href="<?= SYS_URL ?>items/edit.php?itemid=<?= $row['id'] ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a></td>
-                                    <td><a href="<?= SYS_URL ?>items/delete.php?itemid=<?= $row['id'] ?>" class="btn btn-danger" onclick="return confirmDelete()"><i class="fas fa-trash"></i> Delete</a></td>
-                                </tr>
-
-                                <?php
-                            }
-                        } else {
-                            ?>
+                        <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
-                                <td colspan="7">No items found</td>
+                                <td><?= htmlspecialchars($row['item_id']) ?></td>
+                                <td><?= htmlspecialchars($row['item_name']) ?></td>
+                                <td><?= htmlspecialchars($row['category_name']) ?></td>
+                                <td><?= htmlspecialchars($row['category_status']) ?></td>
+                                <td><?= htmlspecialchars($row['qty']) ?></td>
+                                <td><?= htmlspecialchars($row['unit_price']) ?></td>
+                                <td><?= htmlspecialchars($row['purchase_date']) ?></td>
+                                <td><?= htmlspecialchars($row['issued_qty']) ?></td>
+                                <td>
+                                    <a href="edit_item.php?id=<?= $row['item_id'] ?>" class="btn btn-warning">Edit</a>
+                                    <a href="delete_item.php?id=<?= $row['item_id'] ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this item?')">Delete</a>
+                                </td>
                             </tr>
-                            <?php
-                        }
-                        ?>
+                        <?php endwhile; ?>
                     </tbody>
                 </table>
             </div>
-            <!-- /.card-body -->
         </div>
-        <!-- /.card -->
     </div>
 </div>
+
 <?php
 $content = ob_get_clean();
 include '../layouts.php';
 ?>
-
-<script>
-    function confirmDelete() {
-        return confirm("Are you sure you want to delete this record?");
-    }
-</script>
