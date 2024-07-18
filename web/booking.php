@@ -168,8 +168,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     const serviceSelect = document.getElementById('service');
     const selectedServicesList = document.getElementById('selectedServicesList');
     const totalPriceElement = document.getElementById('total');
+    const dateInput = document.getElementById('date');
 
-    let selectedServices = {};  // Use an object to store selected services
+    let selectedServices = {};   // Use an object to store selected services
 
     mainServiceSelect.addEventListener('change', () => {
         subServiceSelect.innerHTML = '<option value="">Choose...</option>'; // Clear sub-service options
@@ -211,23 +212,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     serviceSelect.disabled = false;
 });
+serviceSelect.addEventListener('change', () => {
+    const selectedOptions = Array.from(serviceSelect.selectedOptions);
+    selectedOptions.forEach(option => {
+        const serviceId = option.value;
+        const serviceName = option.text;
+        const priceMatch = serviceName.match(/\(LKR (\d+\.\d+)\)/);
+        const price = priceMatch ? parseFloat(priceMatch[1]) : 0;
 
-    serviceSelect.addEventListener('change', () => {
-        const selectedOptions = Array.from(serviceSelect.selectedOptions);
-        selectedOptions.forEach(option => {
-            const serviceId = option.value;
-            const serviceName = option.text;
-            const priceMatch = serviceName.match(/\(LKR (\d+\.\d+)\)/);
-            const price = priceMatch ? parseFloat(priceMatch[1]) : 0;
-
-            if (serviceId && !selectedServices[serviceId]) {
-                selectedServices[serviceId] = { name: serviceName, price: price };
-            }
-        });
-        updateSelectedServicesList();
+        if (serviceId && !selectedServices[serviceId]) {
+            selectedServices[serviceId] = { name: serviceName, price: price };
+        }
     });
+    updateSelectedServicesList();
+});
 
-    function updateSelectedServicesList() {
+function updateSelectedServicesList() {
     selectedServicesList.innerHTML = '';
     let totalPrice = 0;
     for (const serviceId in selectedServices) {
@@ -248,19 +248,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     });
 }
 
-    function cancelSelectedService(event) {
-        const serviceId = event.target.dataset.serviceId;
-        if (serviceId && selectedServices[serviceId]) {
-            delete selectedServices[serviceId];
-            updateSelectedServicesList();
+function cancelSelectedService(event) {
+    const serviceId = event.target.dataset.serviceId;
+    if (serviceId && selectedServices[serviceId]) {
+        delete selectedServices[serviceId];
+        updateSelectedServicesList();
 
-            // Find and deselect the corresponding option in the serviceSelect dropdown
-            const optionToDeselect = Array.from(serviceSelect.options).find(opt => opt.value === serviceId);
-            if (optionToDeselect) {
-                optionToDeselect.selected = false;
-            }
+        // Find and deselect the corresponding option in the serviceSelect dropdown
+        const optionToDeselect = Array.from(serviceSelect.options).find(opt => opt.value === serviceId);
+        if (optionToDeselect) {
+            optionToDeselect.selected = false;
         }
     }
+}
+
+// Get today's date in YYYY-MM-DD format
+const today = new Date().toISOString().split('T')[0];
+
+// Set the min attribute of the date input
+dateInput.min = today;
 </script>
 <?php
 include 'footer.php';
