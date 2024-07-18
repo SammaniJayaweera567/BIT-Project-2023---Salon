@@ -2,8 +2,8 @@
 ob_start();
 include_once '../init.php';
 
-$link = "Service Management";
-$breadcrumb_item = "Service";
+$link = "Services Management";
+$breadcrumb_item = "Services";
 $breadcrumb_item_active = "Manage";
 ?>
 
