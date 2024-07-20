@@ -44,7 +44,7 @@ if (!isset($_SESSION['USERID'])) {
             </div>
 
             <!-- Navbar -->
-            <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <nav class="main-header navbar navbar-expand navbar-white navbar-light" style="background-color: #ffff;">
                 <!-- Left navbar links -->
                 <!--<ul class="navbar-nav">
                         <li class="nav-item">
@@ -63,7 +63,7 @@ if (!isset($_SESSION['USERID'])) {
                     <!-- Navbar Search -->
                     <li class="nav-item">
                         <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                            <i class="fas fa-search"></i>
+                            <i class="fas fa-search" style="color: #201e21 !important;"></i>
                         </a>
                         <div class="navbar-search-block">
                             <form class="form-inline">
@@ -85,7 +85,7 @@ if (!isset($_SESSION['USERID'])) {
                     <!-- Messages Dropdown Menu -->
                     <li class="nav-item dropdown">
                         <a class="nav-link" data-toggle="dropdown" href="#">
-                            <i class="far fa-comments"></i>
+                            <i class="far fa-comments" style="color: #201e21 !important;"></i>
                             <span class="badge badge-danger navbar-badge">3</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
@@ -143,7 +143,7 @@ if (!isset($_SESSION['USERID'])) {
                     <!-- Notifications Dropdown Menu -->
                     <li class="nav-item dropdown">
                         <a class="nav-link" data-toggle="dropdown" href="#">
-                            <i class="far fa-bell"></i>
+                            <i class="far fa-bell" style="color: #201e21 !important;"></i>
                             <span class="badge badge-warning navbar-badge">15</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
@@ -169,11 +169,11 @@ if (!isset($_SESSION['USERID'])) {
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                            <i class="fas fa-expand-arrows-alt"></i>
+                            <i class="fas fa-expand-arrows-alt" style="color: #01e21 !important;"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link"  href="<?= SYS_URL ?>logout.php" role="button">
+                        <a class="nav-link"  href="<?= SYS_URL ?>logout.php" role="button" style="color: #01e21 !important;">
                             Logout
                         </a>
                     </li>
@@ -181,11 +181,11 @@ if (!isset($_SESSION['USERID'])) {
             </nav>
             <!-- /.navbar -->
             <!-- Main Sidebar Container -->
-            <aside class="main-sidebar sidebar-dark-primary elevation-4 bg-dark-black">
+            <aside class="main-sidebar elevation-4 pt-2 px-2" style="background-color: #0c1e2b;">
                 <!-- Brand Logo -->
                 <a href="index3.html" class="brand-link">
                     <img src="<?= SYS_URL ?>assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-                    <span class="brand-text font-weight-light">Salon Angel</span>
+                    <span class="brand-text font-weight-light" style="color: #ffff !important;">Salon Angel</span>
                 </a>
 
                 <!-- Sidebar -->
@@ -194,7 +194,7 @@ if (!isset($_SESSION['USERID'])) {
                     <div class="user-panel mt-3 pb-3 mb-3 d-flex">
 
                         <div class="info">
-                            <a href="#" class="d-block"><?= $_SESSION['FIRSTNAME'] . " " . $_SESSION['LASTNAME'] ?></a>
+                            <a href="#" class="d-block" style="color: #ffff !important;"><?= $_SESSION['FIRSTNAME'] . " " . $_SESSION['LASTNAME'] ?></a>
                         </div>
                     </div>
 
@@ -203,7 +203,7 @@ if (!isset($_SESSION['USERID'])) {
                         <div class="input-group" data-widget="sidebar-search">
                             <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
                             <div class="input-group-append">
-                                <button class="btn btn-sidebar">
+                                <button class="btn btn-sidebar" style="background: #dfc27d;">
                                     <i class="fas fa-search fa-fw"></i>
                                 </button>
                             </div>
@@ -226,8 +226,8 @@ if (!isset($_SESSION['USERID'])) {
                                     ?>
                                     <li class="nav-item">
                                         <a href="<?= SYS_URL ?><?= $row['Path'] ?>/<?= $row['File'] ?>.php" class="nav-link">
-                                            <i class="nav-icon <?= $row['Icon'] ?>"></i>
-                                            <p>
+                                            <i class="nav-icon <?= $row['Icon'] ?>" style="color: #dfc27d !important;"></i>
+                                            <p style="color: #dfc27d !important;">
                                                 <?= $row['Name'] ?>                                                                      
                                             </p>
                                         </a>

@@ -82,3 +82,9 @@ body.login-page.login-page-bg {
 .layout-fixed .main-sidebar {
     background-color: #0b0b0b;
 }
+
+
+.card-header.border-0.ui-sortable-handle {
+    background: #2d556a;
+    color: #ffff;
+}

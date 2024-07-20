@@ -47077,7 +47077,7 @@ blockquote.quote-gray-dark h6 {
 }
 
 .bg-gradient-success {
-  background: #28a745 linear-gradient(180deg, #48b461, #28a745) repeat-x !important;
+  background: #ff0000 linear-gradient(180deg, #dfc27d, #0c1e2b) repeat-x !important;
   color: #fff;
 }
 
@@ -53011,4 +53011,16 @@ a.text-muted:hover {
 }
 /*# sourceMappingURL=adminlte.css.map */
 
+
+.btn-dark {
+    color: #fff;
+    background-color: #ca9139;
+    border-color: #ca9139;
+    box-shadow: none;
+}
+
+.bg-gradient-success {
+    background: #ff0000 linear-gradient(180deg, #dfc27d, #0c1e2b) repeat-x !important;
+    color: #fff;
+}
 
