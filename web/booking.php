@@ -223,32 +223,62 @@ subServiceSelect.addEventListener('change', () => {
 });
 
 serviceSelect.addEventListener('change', () => {
-  const selectedOptions = Array.from(serviceSelect.selectedOptions);
+    const selectedOptions = Array.from(serviceSelect.selectedOptions);
+    
+    // Calculate new service count and total duration
+    let newServiceCount = Object.keys(selectedServices).length + selectedOptions.length;
+    let newTotalDuration = 0;
 
-  // Update selectedServices, but keep existing entries
-  selectedOptions.forEach(option => {
-    const serviceId = option.value;
-    if (!selectedServices.hasOwnProperty(serviceId)) {
-      // Find the service object in mainServiceData
-      for (const mainService in mainServiceData) {
-        for (const subService in mainServiceData[mainService]) {
-          if (mainServiceData[mainService][subService][serviceId]) {
-            const service = mainServiceData[mainService][subService][serviceId];
-            const price = parseFloat(service.Price).toFixed(2);
-            const duration = service.Duration; 
-            selectedServices[serviceId] = { 
-              name: `${service.ServiceName} (LKR ${price}) - ${duration} mins`,
-              price: price,
-              duration: duration
-            };
-            break; 
-          }
-        }
-      }
+    for (const option of selectedOptions) {
+        newTotalDuration += parseInt(option.dataset.duration, 10) || 0; 
     }
-  });
-  updateSelectedServicesList();
-});
+
+    for (const serviceId in selectedServices) {
+        newTotalDuration += selectedServices[serviceId].duration; // Also add existing durations
+    }
+
+    // Check for exceeding limits
+    if (newServiceCount > 5) {
+        alert("Customer can only select only 5 services maximum per an appointment!");
+    } else if (newTotalDuration > 320) {
+        alert("Customer can only select a maximum of 320 mins per appointment!");
+    } else {
+        // Update selectedServices, but keep existing entries
+        selectedOptions.forEach(option => {
+            const serviceId = option.value;
+            if (!selectedServices.hasOwnProperty(serviceId)) {
+                for (const mainService in mainServiceData) {
+                    for (const subService in mainServiceData[mainService]) {
+                        if (mainServiceData[mainService][subService][serviceId]) {
+                            const service = mainServiceData[mainService][subService][serviceId];
+                            const price = parseFloat(service.Price).toFixed(2);
+                            const duration = service.Duration; 
+                            selectedServices[serviceId] = { 
+                                name: `${service.ServiceName} (LKR ${price}) - ${duration} mins`,
+                                price: price,
+                                duration: duration
+                            };
+                            break; 
+                        }
+                    }
+                }
+            }
+        });
+        updateSelectedServicesList();
+    }
+
+    // Deselect exceeding options (based on BOTH service count AND total duration)
+    while (newServiceCount > 5 || newTotalDuration > 320) {
+        const lastSelectedOption = selectedOptions.pop();
+        if (lastSelectedOption) {
+            lastSelectedOption.selected = false;
+            newServiceCount -= 1;
+            newTotalDuration -= parseInt(lastSelectedOption.dataset.duration, 10) || 0;
+            delete selectedServices[lastSelectedOption.value]; // Remove from selected services
+        }
+        updateSelectedServicesList(); // Update the list to reflect changes
+    } 
+})
 
 function updateSelectedServices() {
   selectedServices = {}; // Reset selectedServices
@@ -280,6 +310,7 @@ function updateSelectedServicesList() {
     selectedServicesList.innerHTML = '';
     let totalPrice = 0;
     let totalDuration = 0;
+    
     for (const serviceId in selectedServices) {
         const service = selectedServices[serviceId];
         selectedServicesList.innerHTML += `
@@ -308,7 +339,7 @@ function updateSelectedServicesList() {
         selectedServicesList.parentNode.insertBefore(durationElement, totalPriceElement.nextSibling);
     }
     durationElement.innerHTML = `<label class="form-label">Total Duration: ${totalDuration} mins</label>`;
-
+    
     // Attach event listeners to cancel buttons
     const cancelButtons = document.querySelectorAll('.cancel-service-btn');
     cancelButtons.forEach(button => {
