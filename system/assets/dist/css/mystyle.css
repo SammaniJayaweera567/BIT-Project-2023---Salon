@@ -88,3 +88,11 @@ body.login-page.login-page-bg {
     background: #2d556a;
     color: #ffff;
 }
+
+
+.card-primary:not(.card-outline)>.card-header, .card-primary:not(.card-outline)>.card-header a {
+    color: #ffffff !important;
+}
+.card-primary:not(.card-outline)>.card-header {
+    background-color: #2d556a !important;
+}

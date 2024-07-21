@@ -151,7 +151,7 @@
         <div class="image">
           <img src="assets/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
         </div>
-        <div class="info">
+        <div class="info" style="margin: 0 auto;">
           <a href="#" class="d-block" style="color: #ffff !important;"><?= $_SESSION['FIRSTNAME']." ".$_SESSION['LASTNAME'] ?></a>
         </div>
       </div>
