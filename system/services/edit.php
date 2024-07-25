@@ -4,12 +4,13 @@ include_once '../init.php';
 
 $link = "Service Management";
 $breadcrumb_item = "Service";
-$breadcrumb_item_active = "Update";
+$breadcrumb_item_active = "Edit";
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     extract($_GET);
     $db = dbConn();
     $sql = "SELECT * FROM services WHERE ServiceId='$serviceid'";
+
     $result = $db->query($sql);
     $row = $result->fetch_assoc();
 
@@ -53,28 +54,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (empty($message)) {
         $db = dbConn();
-        $sql = "UPDATE services SET 
-                    ServiceCategoryName='$ServiceCategoryName', 
-                    SubServiceName='$SubServiceName', 
-                    ServiceName='$ServiceName', 
-                    Description='$Description', 
-                    Duration='$Duration', 
-                    Price='$Price' 
-                WHERE ServiceId='$ServiceId'";
+        $sql = "UPDATE services SET ServiceCategoryName='$ServiceCategoryName', SubServiceName='$SubServiceName', ServiceName='$ServiceName', Description='$Description', Duration='$Duration', Price='$Price' WHERE ServiceId='$ServiceId'";
         $db->query($sql);
         header("Location: manage.php");
     }
 }
 ?>
-
 <div class="row">
     <div class="col-12">
-        <a href="" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> New</a>
-
+        <a href="" class="btn btn-dark mb-3"><i class="fas fa-plus-circle"></i> New</a>
         <div class="card card-primary">
             <div class="card-header">
-                <h3 class="card-title">Update Service</h3>
-            </div>              
+                <h3 class="card-title">Edit Service</h3>
+            </div>
             <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
                 <div class="card-body">
                     <div class="form row">
@@ -113,16 +105,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
                 </div>
-                <!-- /.card-body -->
-
                 <div class="card-footer">
                     <input type="hidden" name="ServiceId" value="<?= $ServiceId ?>">
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </form>
-
         </div>
-        <!-- /.card -->
     </div>
 </div>
 
