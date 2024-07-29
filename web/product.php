@@ -1,19 +1,7 @@
 <?php
 session_start();
-ob_start(); // Multiple header error removal
 include 'header2.php';
-include '../function.php'; // Verify this path is correct and adjust if necessary.
-
-$total = 0;
-$noitmes = 0;
-if (isset($_SESSION['cart'])) {
-    $cart = $_SESSION['cart'];
-    foreach ($cart as $key => $value) {
-        $total += $value['qty'] * $value['unit_price'];
-        $noitmes += $value['qty'];
-    }
-}
-echo "<a href='cart.php'>" . $total . " [" . $noitmes . "]</a>";
+include '../function.php'; // Ensure this path is correct
 ?>
 
 <main id="main">
@@ -119,51 +107,68 @@ echo "<a href='cart.php'>" . $total . " [" . $noitmes . "]</a>";
 
                         <div class="col-lg-9">
                             <div class="row g-4">
-                            <?php
-                            $db = dbConn();
-                            $sql = "SELECT
-                                        items.id,
-                                        items.item_name,
-                                        items.item_image,
-                                        SUM(item_stock.qty) as total_qty,
-                                        item_stock.unit_price,
-                                        item_category.category_name
-                                    FROM
-                                        item_stock
-                                    INNER JOIN items 
-                                        ON items.id = item_stock.item_id
-                                    INNER JOIN item_category 
-                                        ON item_category.id = items.item_category
-                                    GROUP BY items.id, item_stock.unit_price, item_category.category_name";
-                            $result = $db->query($sql);
+                                <?php
+                                $total = 0;
+                                $noitmes = 0;
+                                if (isset($_SESSION['cart'])) {
+                                    $cart = $_SESSION['cart'];
+                                    foreach ($cart as $key => $value) {
+                                        $total += $value['qty'] * $value['unit_price'];
+                                        $noitmes += $value['qty'];
+                                    }
+                                }
+                                echo "<a href='cart.php'>" . number_format($total, 2) . " [" . $noitmes . "]</a>";
+                                ?> 
 
-                            if ($result->num_rows > 0) {
-                                while ($row = $result->fetch_assoc()) {
-                                    ?>
-                                    <div class="col-md-6 col-lg-4 col-xl-3">
-                                        <div class="rounded position-relative fruite-item">
-                                            <div class="fruite-img">
-                                                <img src="assets/img/<?= $row['item_image'] ?>" alt="<?= $row['item_name'] ?>" class="img-fluid">
-                                            </div>
-                                            <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                                                <h4><?= $row['item_name'] ?></h4>
-                                                <div class="d-flex justify-content-between flex-lg-wrap">
-                                                    <form method="post" action="shopping_cart.php">
-                                                        <p class="text-dark fs-5 fw-bold mb-0"><?= $row['unit_price'] ?></p>
-                                                        <button type="submit" name="operate" value="add_cart" class="btn border border-secondary rounded-pill px-3 text-primary">
-                                                            <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to Cart
-                                                        </button>
-                                                    </form>
+                                <?php
+                                $db = dbConn();
+                                if ($db) {
+                                    $sql = "SELECT
+                                            item_stock.id,
+                                            items.item_name,
+                                            items.item_image,
+                                            item_stock.qty,
+                                            item_stock.unit_price,
+                                            item_category.category_name
+                                        FROM
+                                            item_stock
+                                        INNER JOIN items 
+                                            ON items.id = item_stock.item_id
+                                        INNER JOIN item_category 
+                                            ON item_category.id = items.item_category";
+                                    $result = $db->query($sql);
+
+                                    if ($result->num_rows > 0) {
+                                        while ($row = $result->fetch_assoc()) {
+                                            ?>
+                                            <div class="col-md-6 col-lg-4 col-xl-3">
+                                                <div class="rounded position-relative fruite-item">
+                                                    <div class="products-img">
+                                                        <img src="assets/img/<?= htmlspecialchars($row['item_image']) ?>" class="img-fluid" alt="<?= htmlspecialchars($row['item_name']) ?>">
+                                                    </div>
+                                                    <div class="p-4 border border-secondary border-top-0 rounded-bottom">
+                                                        <h4><?= htmlspecialchars($row['item_name']) ?></h4>
+                                                        <div class="d-flex justify-content-between flex-lg-wrap">
+                                                            <form method="post" action="shopping_cart.php">
+                                                                <p class="text-dark fs-5 fw-bold mb-0"><?= number_format($row['unit_price'], 2) ?></p>
+                                                                <input type="hidden" name="id" value="<?= htmlspecialchars($row['id']) ?>"> <!--stock id-->
+                                                                <button type="submit" name="operate" value="add_cart" class="btn border border-secondary rounded-pill px-3 text-primary">
+                                                                    <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to Cart
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <?php
+                                            <?php
+                                        }
+                                    } else {
+                                        echo "<p>No items found.</p>";
+                                    }
+                                } else {
+                                    echo "<p>Database connection failed.</p>";
                                 }
-                            } else {
-                                echo "<p>No items found.</p>";
-                            }
-                            ?>
+                                ?>
                             </div>
                             <div class="col-12">
                                 <div class="pagination d-flex justify-content-center mt-5">

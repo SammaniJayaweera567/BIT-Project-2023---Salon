@@ -755,11 +755,26 @@ button.btn.btn-primary.me-4.rounded-pill.home-hero-buttoncontainer-fluid.service
 /*Profile_management page styles start*/
 .card.card-profile-manage {
     width: 100% !important;
-    max-width: 60% !important;
+    max-width: 100% !important;
 }
 /*Profile_management page styles end*/
 
 .error {
     color: red;
     font-size: 0.9em;
+}
+
+main#main\ cart-page {
+    margin-top: 100px;
+}
+
+a.empty-card-link {
+    text-decoration: underline;
+    padding: 10px;
+    background: #e9e9e9fc;
+    border-radius: 10px;
+}
+
+table.table.cart {
+    margin-top: 30px;
 }

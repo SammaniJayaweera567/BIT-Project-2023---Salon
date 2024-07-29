@@ -1,21 +1,22 @@
 <?php
-
 // Create Database Connection ----------------------------------
 function dbConn() {
-    $server = "localhost";
-    $username = "root";
-    $password = "";
-    $db = "sms";
+    static $conn; // Use static to keep the connection persistent
 
-    $conn = new mysqli($server, $username, $password, $db);
+    if (!isset($conn)) {
+        $server = "localhost";
+        $username = "root";
+        $password = "";
+        $db = "sms";
 
-    if ($conn->connect_error) {
-        die("Database Error: " . $conn->connect_error);
-    } else {
-        return $conn;
+        $conn = new mysqli($server, $username, $password, $db);
+
+        if ($conn->connect_error) {
+            die("Database Error: " . $conn->connect_error);
+        }
     }
+    return $conn;
 }
-
 // End Database Connection -------------------------------------
 
 // Data clean start ------------------------------------------
@@ -26,9 +27,6 @@ function dataClean($data = null) {
 
     return $data;
 }
-
 // Data clean end --------------------------------------------
-
 ?>
-
 

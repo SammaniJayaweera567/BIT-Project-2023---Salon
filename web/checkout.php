@@ -1,22 +1,31 @@
 <?php
 session_start();
-ob_start(); //multiple header error removal
 include 'header2.php';
 include '../function.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['USERID'])) {
-    header("Location:login.php");
+    header("Location: login.php");
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Existing validation and order insertion code
+
+    if (empty($message)) {
+        $_SESSION['order_id'] = $order_id; // Store the order ID in the session
+        // Instead of redirecting here, JavaScript will handle the redirection
+        echo 'order_id=' . $order_id;
+        exit();
+    }
 }
 
 $total = 0;
 $noitmes = 0;
-if (isset($_SESSION['cart'])) {
-    $cart = $_SESSION['cart'];
-    foreach ($cart as $key => $value) {
-        $total += $value['qty'] * $value['unit_price'];
-        $noitmes += $value['qty'];
-    }
+$cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : array();
+foreach ($cart as $item) {
+    $total += $item['qty'] * $item['unit_price'];
+    $noitmes += $item['qty'];
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -27,6 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $billing_name = dataClean($billing_name);
     $billing_address = dataClean($billing_address);
     $billing_phone = dataClean($billing_phone);
+    $shipping_method = isset($shipping_method) ? dataClean($shipping_method) : '';
+    $payment_method = isset($payment_method) ? dataClean($payment_method) : '';
+    $payment_slip = isset($_FILES['payment_slip']) ? $_FILES['payment_slip'] : null;
 
     $message = array();
     // Required validation
@@ -39,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($delivery_phone)) {
         $message['delivery_phone'] = "The delivery phone should not be blank...!";
     }
-    if (!isset($billing_name)) {
+    if (empty($billing_name)) {
         $message['billing_name'] = "The billing name is required";
     }
     if (empty($billing_address)) {
@@ -47,6 +59,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     if (empty($billing_phone)) {
         $message['billing_phone'] = "The billing phone is required";
+    }
+    if (empty($shipping_method)) {
+        $message['shipping_method'] = "Please select a shipping method.";
+    }
+    if (empty($payment_method)) {
+        $message['payment_method'] = "Please select a payment method.";
+    }
+
+    if ($payment_method == 'bank_slip' && !$payment_slip) {
+        $message['payment_slip'] = "Please upload a bank slip.";
     }
 
     if (empty($message)) {
@@ -60,20 +82,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $order_date = date('Y-m-d');
         $order_number = date('Y') . date('m') . date('d') . $customerid;
 
-        $sql = "INSERT INTO `orders`(`order_date`,`customer_id`,`delivery_name`,`delivery_address`,`delivery_phone`,`billing_name`,`billing_address`,`billing_phone`,order_number) VALUES ('$order_date','$customerid','$delivery_name','$delivery_address','$delivery_phone','$billing_name','$billing_address','$billing_phone','$order_number')";
+        $sql = "INSERT INTO orders(order_date, customer_id, delivery_name, delivery_address, delivery_phone, billing_name, billing_address, billing_phone, order_number, shipping_method, payment_method) VALUES ('$order_date', '$customerid', '$delivery_name', '$delivery_address', '$delivery_phone', '$billing_name', '$billing_address', '$billing_phone', '$order_number', '$shipping_method', '$payment_method')";
         $db->query($sql);
 
         $order_id = $db->insert_id;
+
+        $cart = $_SESSION['cart'];
 
         foreach ($cart as $key => $value) {
             $stock_id = $value['stock_id'];
             $item_id = $value['item_id'];
             $unit_price = $value['unit_price'];
             $qty = $value['qty'];
-            $sql = "INSERT INTO `order_items`(`order_id`,`item_id`,`stock_id`,`unit_price`,`qty`) VALUES ('$order_id','$item_id','$stock_id','$unit_price','$qty')";
+            $sql = "INSERT INTO order_items(order_id, item_id, stock_id, unit_price, qty) VALUES ('$order_id', '$item_id', '$stock_id', '$unit_price', '$qty')";
             $db->query($sql);
         }
-        header("Location:order_success.php");
+
+        if ($payment_method == 'bank_slip' && $payment_slip) {
+            // Handle file upload
+            $upload_dir = '../uploads/';
+            $upload_file = $upload_dir . basename($payment_slip['name']);
+            if (move_uploaded_file($payment_slip['tmp_name'], $upload_file)) {
+                // Store file path in the database or further process
+                $sql = "UPDATE orders SET payment_slip = '$upload_file' WHERE order_id = '$order_id'";
+                $db->query($sql);
+            } else {
+                $message['payment_slip'] = "Failed to upload bank slip.";
+            }
+        }
+
+        if (empty($message)) {
+            $_SESSION['order_id'] = $order_id; // Store the order ID in the session
+            header("Location: order_history.php?status=success");
+            exit();
+        }
     }
 }
 ?>
@@ -112,137 +154,127 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Checkout Page Start -->
     <div class="container-fluid py-5">
         <div class="container py-5">
-            <h1 class="mb-4">Billing details</h1>
-            <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+            <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" enctype="multipart/form-data">
                 <div class="row g-5">
                     <div class="col-md-12 col-lg-6 col-xl-7">
                         <div class="row">
-                            <div class="col-md-12 col-lg-6">
-                                <div class="form-item w-100">
-                                    <label class="form-label my-3">First Name<sup>*</sup></label>
-                                    <input type="text" class="form-control" name="delivery_name" required>
-                                </div>
+                            <h4 class="px-0">Delivery Details</h4>
+                            <div class="form-item w-100 px-0">
+                                <label class="form-label my-3" for="delivery_name">Name<sup>*</sup></label>
+                                <input type="text" class="form-control" id="delivery_name" name="delivery_name" required>
+                                <?php if (isset($message['delivery_name'])): ?>
+                                    <div class="text-danger"><?= $message['delivery_name']; ?></div>
+                                <?php endif; ?>
                             </div>
-                            <div class="col-md-12 col-lg-6">
-                                <div class="form-item w-100">
-                                    <label class="form-label my-3">Last Name<sup>*</sup></label>
-                                    <input type="text" class="form-control">
-                                </div>
+                            <div class="form-item w-100 px-0">
+                                <label class="form-label my-3" for="delivery_address">Address<sup>*</sup></label>
+                                <input type="text" class="form-control" id="delivery_address" name="delivery_address" required>
+                                <?php if (isset($message['delivery_address'])): ?>
+                                    <div class="text-danger"><?= $message['delivery_address']; ?></div>
+                                <?php endif; ?>
                             </div>
-                        </div>
-                        <div class="form-item">
-                            <label class="form-label my-3">Company Name</label>
-                            <input type="text" class="form-control">
-                        </div>
-                        <div class="form-item">
-                            <label class="form-label my-3">Address <sup>*</sup></label>
-                            <input type="text" class="form-control" placeholder="House Number Street Name" name="delivery_address" required>
-                        </div>
-                        <div class="form-item">
-                            <label class="form-label my-3">Town/City<sup>*</sup></label>
-                            <input type="text" class="form-control">
-                        </div>
-                        <div class="form-item">
-                            <label class="form-label my-3">Country<sup>*</sup></label>
-                            <input type="text" class="form-control">
-                        </div>
-                        <div class="form-item">
-                            <label class="form-label my-3">Postcode/Zip<sup>*</sup></label>
-                            <input type="text" class="form-control">
-                        </div>
-                        <div class="form-item">
-                            <label class="form-label my-3">Mobile<sup>*</sup></label>
-                            <input type="tel" class="form-control" name="delivery_phone" required>
-                        </div>
-                        <div class="form-item">
-                            <label class="form-label my-3">Email Address<sup>*</sup></label>
-                            <input type="email" class="form-control">
-                        </div>
-                        <div class="form-check my-3">
-                            <input type="checkbox" class="form-check-input" id="Account-1" name="Accounts" value="Accounts">
-                            <label class="form-check-label" for="Account-1">Create an account?</label>
+                            <div class="form-item px-0">
+                                <label class="form-label my-3" for="delivery_phone">Phone</label>
+                                <input type="text" class="form-control" id="delivery_phone" name="delivery_phone" required>
+                                <?php if (isset($message['delivery_phone'])): ?>
+                                    <div class="text-danger"><?= $message['delivery_phone']; ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="form-check my-3 px-0 ms-4">
+                                <input type="checkbox" class="form-check-input" id="same_as_delivery" name="same_as_delivery" value="same_as_delivery">
+                                <label class="form-check-label" for="same_as_delivery">Same as Delivery Details</label>
+                            </div>
                         </div>
                         <hr>
-                        <div class="form-check my-3">
-                            <input class="form-check-input" type="checkbox" id="Address-1" name="same_as_delivery" value="1">
-                            <label class="form-check-label" for="Address-1">Ship to a different address?</label>
-                        </div>
-                        <div class="form-item">
-                            <textarea name="order_notes" class="form-control" spellcheck="false" cols="30" rows="11" placeholder="Order Notes (Optional)"></textarea>
+                        <div class="row">
+                            <h4 class="px-0">Billing Details</h4>
+                            <div class="form-item w-100 px-0">
+                                <label class="form-label my-3" for="billing_name">Name<sup>*</sup></label>
+                                <input type="text" class="form-control" id="billing_name" name="billing_name">
+                                <?php if (isset($message['billing_name'])): ?>
+                                    <div class="text-danger"><?= $message['billing_name']; ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="form-item w-100 px-0">
+                                <label class="form-label my-3" for="billing_address">Address<sup>*</sup></label>
+                                <input type="text" class="form-control" id="billing_address" name="billing_address">
+                                <?php if (isset($message['billing_address'])): ?>
+                                    <div class="text-danger"><?= $message['billing_address']; ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="form-item px-0">
+                                <label class="form-label my-3" for="billing_phone">Phone</label>
+                                <input type="text" class="form-control" id="billing_phone" name="billing_phone">
+                                <?php if (isset($message['billing_phone'])): ?>
+                                    <div class="text-danger"><?= $message['billing_phone']; ?></div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-12 col-lg-6 col-xl-5">
-                        <div class="table-responsive">
-                            <table class="table">
+                        <div class="row">
+                            <h4 class="px-0">Order Summary</h4>
+                            <table class="table text-center">
                                 <thead>
                                     <tr>
-                                        <th scope="col">Products</th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Quantity</th>
-                                        <th scope="col">Total</th>
+                                        <th>Product</th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>Qty</th>
+                                        <th>Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php if (isset($cart)): ?>
-                                        <?php foreach ($cart as $item): ?>
-                                            <tr>
-                                                <th scope="row">
-                                                    <div class="d-flex align-items-center mt-2">
-                                                        <img src="img/vegetable-item-2.jpg" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
-                                                    </div>
-                                                </th>
-                                                <td><?= $item['name']; ?></td>
-                                                <td><?= $item['unit_price']; ?></td>
-                                                <td><?= $item['qty']; ?></td>
-                                                <td><?= $item['qty'] * $item['unit_price']; ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                                <tfoot>
+                                    <?php foreach ($cart as $item): ?>
+                                        <tr>
+                                            <td><img src="assets/img/<?= htmlspecialchars($value['item_image'] ?? '') ?>" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt=""></td>
+                                            <td><?= $item['item_name']; ?></td>
+                                            <td>LKR <?= number_format($item['unit_price'], 2); ?></td>
+                                            <td><?= $item['qty']; ?></td>
+                                            <td>LKR <?= number_format($item['qty'] * $item['unit_price'], 2); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
                                     <tr>
-                                        <th colspan="4">Total</th>
-                                        <td><?= $total; ?></td>
+                                        <td></td>
+                                        <td colspan="3" class="text-end">Total:</td>
+                                        <td><strong>LKR <?= number_format($total, 2); ?></strong></td>
                                     </tr>
-                                </tfoot>
+                                </tbody>
                             </table>
+                            <hr>
+                            <div class="form-item w-100 px-0">
+                                <label class="form-label my-3" for="shipping_method">Shipping Method<sup>*</sup></label>
+                                <select id="shipping_method" name="shipping_method" class="form-control" required>
+                                    <option value="">Select Shipping Method</option>
+                                    <option value="standard">Standard Shipping</option>
+                                    <option value="express">Express Shipping</option>
+                                </select>
+                                <?php if (isset($message['shipping_method'])): ?>
+                                    <div class="text-danger"><?= $message['shipping_method']; ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="form-item w-100 px-0">
+                                <label class="form-label my-3" for="payment_method">Payment Method<sup>*</sup></label>
+                                <select id="payment_method" name="payment_method" class="form-control" required>
+                                    <option value="">Select Payment Method</option>
+                                    <option value="credit_card">Credit Card</option>
+                                    <option value="bank_slip">Bank Slip</option>
+                                    <option value="cash_on_delivery">Cash on Delivery</option>
+                                </select>
+                                <?php if (isset($message['payment_method'])): ?>
+                                    <div class="text-danger"><?= $message['payment_method']; ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="form-item w-100 px-0" id="payment_slip_container" style="display: none;">
+                                <label class="form-label my-3" for="payment_slip">Upload Bank Slip</label>
+                                <input type="file" class="form-control" id="payment_slip" name="payment_slip">
+                                <?php if (isset($message['payment_slip'])): ?>
+                                    <div class="text-danger"><?= $message['payment_slip']; ?></div>
+                                <?php endif; ?>
+                            </div>
                         </div>
-
-                        <h4 class="mt-5">Shipping</h4>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="shipping_method" id="free_shipping" value="free_shipping" checked>
-                            <label class="form-check-label" for="free_shipping">Free Shipping</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="shipping_method" id="flat_rate" value="flat_rate">
-                            <label class="form-check-label" for="flat_rate">Flat Rate</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="shipping_method" id="local_pickup" value="local_pickup">
-                            <label class="form-check-label" for="local_pickup">Local Pickup</label>
-                        </div>
-
-                        <h4 class="mt-5">Payment Method</h4>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="bank_transfer" value="bank_transfer" checked>
-                            <label class="form-check-label" for="bank_transfer">Direct Bank Transfer</label>
-                            <p class="text-muted">Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order won't be shipped until the funds have cleared in our account.</p>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="check_payments" value="check_payments">
-                            <label class="form-check-label" for="check_payments">Check Payments</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="cash_on_delivery" value="cash_on_delivery">
-                            <label class="form-check-label" for="cash_on_delivery">Cash on Delivery</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="paypal" value="paypal">
-                            <label class="form-check-label" for="paypal">PayPal</label>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary mt-3 w-100 py-3">Place Order</button>
+                        <hr>
+                        <button type="submit" class="btn btn-primary w-100">Place Order</button>
                     </div>
                 </div>
             </form>
@@ -251,7 +283,68 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Checkout Page End -->
 </main>
 
-<?php
-include 'footer.php';
-ob_end_flush();
-?>
+<!-- JavaScript to copy billing details from delivery details -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sameAsDeliveryCheckbox = document.getElementById('same_as_delivery');
+    const deliveryName = document.getElementById('delivery_name');
+    const deliveryAddress = document.getElementById('delivery_address');
+    const deliveryPhone = document.getElementById('delivery_phone');
+    const billingName = document.getElementById('billing_name');
+    const billingAddress = document.getElementById('billing_address');
+    const billingPhone = document.getElementById('billing_phone');
+    const paymentMethodSelect = document.getElementById('payment_method');
+    const paymentSlipContainer = document.getElementById('payment_slip_container');
+
+    sameAsDeliveryCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            billingName.value = deliveryName.value;
+            billingAddress.value = deliveryAddress.value;
+            billingPhone.value = deliveryPhone.value;
+        } else {
+            billingName.value = '';
+            billingAddress.value = '';
+            billingPhone.value = '';
+        }
+    });
+
+    paymentMethodSelect.addEventListener('change', function() {
+        if (this.value === 'bank_slip') {
+            paymentSlipContainer.style.display = 'block';
+        } else {
+            paymentSlipContainer.style.display = 'none';
+        }
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+        
+        const formData = new FormData(form);
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        }).then(response => response.text())
+          .then(data => {
+              // Check for success and redirect
+              if (data.includes('order_id')) {
+                  window.location.href = 'order_history.php?status=success';
+              } else {
+                  // Handle errors or display messages as needed
+                  alert('Order placement failed.');
+              }
+          }).catch(error => {
+              console.error('Error:', error);
+          });
+    });
+
+    // Additional JavaScript as before
+});
+</script>
+
+
+<?php include 'footer.php'; ?>
