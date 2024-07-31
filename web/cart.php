@@ -60,13 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && @$action == 'update_qty') {
                                     <form method="get" action="cart.php">
                                         <input type="hidden" name="id" value="<?= htmlspecialchars($key) ?>">
                                         <input type="hidden" name="action" value="update_qty">
-                                        <input type="number" value="<?= htmlspecialchars($value['qty']) ?>" name="qty" onchange="this.form.submit()">
+                                        <input type="number" value="<?= htmlspecialchars($value['qty'] ?? 0) ?>" name="qty" onchange="this.form.submit()">
                                     </form>
                                     </p>
                                 </td>
                                 <td>
                                     <p class="mb-0 mt-4"><?php
-                                        $amt = $value['unit_price'] * $value['qty'];
+                                        $amt = ($value['unit_price'] ?? 0) * ($value['qty'] ?? 0);
                                         $total += $amt;
                                         echo number_format($amt, 2);
                                         ?></p>
@@ -117,17 +117,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && @$action == 'update_qty') {
                                 <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1>
                                 <div class="d-flex justify-content-between mb-4">
                                     <h5 class="mb-0 me-4">Subtotal:</h5>
-                                    <p class="mb-0">$<?= number_format($total, 2) ?></p>
+                                    <p class="mb-0">LKR <?= number_format($total, 2) ?></p>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <h5 class="mb-0 me-4">Shipping</h5>
-                                    <p class="mb-0">Flat rate: $3.00</p>
+                                    <p class="mb-0">Flat rate: LKR 3.00</p>
                                 </div>
-                                <p class="mb-0 text-end">Shipping to Ukraine.</p>
+                                <p class="mb-0 text-end">Shipping to Sri Lanka.</p>
                             </div>
                             <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
                                 <h5 class="mb-0 ps-4 me-4">Total</h5>
-                                <p class="mb-0 pe-4">$<?= number_format($total + 3, 2) ?></p>
+                                <p class="mb-0 pe-4">LKR <?= number_format($total + 3, 2) ?></p>
                             </div>
                             <a href="checkout.php" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4">Proceed Checkout</a>
                         </div>

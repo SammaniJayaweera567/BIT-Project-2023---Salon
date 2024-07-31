@@ -215,20 +215,29 @@ if (!isset($_SESSION['USERID'])) {
                     $db = dbConn();
                     $sql = "SELECT * FROM  user_modules um INNER JOIN modules m ON m.Id=um.ModuleId WHERE um.UserId='$userid' AND m.Status='1' ORDER BY Idx ASC";
                     $result = $db->query($sql);
+                    $current_url = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+                    $url_without_file = preg_replace('/\/[^\/]*$/', '', $current_url);
                     ?> 
 
                     <!-- Sidebar Menu -->
                     <nav class="mt-2">
                         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                             <?php
+                            //Select Active Menu
                             if ($result->num_rows > 0) {
                                 while ($row = $result->fetch_assoc()) {
+
+                                    $menu_url = SYS_URL . $row['Path'] . '/' . $row['File'] . '.php';
+
+                                    $menu_url_without_file = preg_replace('/\/[^\/]*$/', '', $menu_url);
+
+                                    $active_class = ($url_without_file == $menu_url_without_file ) ? 'active' : '';
                                     ?>
                                     <li class="nav-item">
-                                        <a href="<?= SYS_URL ?><?= $row['Path'] ?>/<?= $row['File'] ?>.php" class="nav-link">
-                                            <i class="nav-icon <?= $row['Icon'] ?>" style="color: #dfc27d !important;"></i>
-                                            <p style="color: #dfc27d !important;">
-                                                <?= $row['Name'] ?>                                                                      
+                                        <a href="<?= $menu_url ?>" class="nav-link <?= $active_class ?>">
+                                            <i class="nav-icon <?= $row['Icon'] ?>"></i>
+                                            <p>
+                                                <?= $row['Name'] ?>                
                                             </p>
                                         </a>
                                     </li>

@@ -66,9 +66,15 @@ include_once 'init.php';
         <!-- small box -->
         <div class="small-box" style="border-left: 3px solid #17a2b8 !important; background: #ffff !important;">
             <div class="inner">
-                <h3 style="color: #17a2b8">150</h3>
+                <?php
+                $db = dbConn();
+                $sql = "SELECT COUNT(*) AS 'NOOFORDERS' FROM orders";
+                $result = $db->query($sql);
+                $row = $result->fetch_assoc();
+                ?>
+                <h3 id="NoOfOrders" style="color: #17a2b8"><?= $row['NOOFORDERS'] ?></h3>
 
-                <p>Customers</p>
+                <p>New Orders</p>
             </div>
             <div class="icon">
                 <i class="ion ion-bag" style="color: #17a2b8"></i>
@@ -82,7 +88,7 @@ include_once 'init.php';
             <div class="inner">
                 <h3 style="color: #28a745">53<sup style="font-size: 20px">%</sup></h3>
 
-                <p>Users</p>
+                <p>Customers</p>
             </div>
             <div class="icon">
                 <i class="ion ion-stats-bars" style="color: #28a745"></i>
@@ -177,3 +183,54 @@ include_once 'init.php';
 $content = ob_get_clean();
 include 'layouts.php';
 ?>
+
+<script>
+    $(document).ready(function () {
+
+        //getNumberOfOrders();
+
+        // Function to check for new orders
+        function getNumberOfOrders() {
+            $.ajax({
+                url: 'orders/getNoOfOrders.php', // Path to PHP file that checks for new orders
+                type: 'GET',
+                success: function (data) {
+                    $("#NoOfOrders").html(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                }
+            });
+        }
+
+        //setInterval(getNumberOfOrders, 5000);
+
+        // Function to play sound
+        function playSound(url) {
+            var audio = new Audio(url);
+            audio.play();
+        }
+
+        // Function to check for new orders
+        function checkForNewOrder() {
+            $.ajax({
+                url: 'check_for_new_order.php', // Path to PHP file that checks for new orders
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.new_order_flag) {
+                        // Play sound when a new order is detected
+                        playSound('assets/mixkit-access-allowed-tone-2869.wav');
+                    } else {
+                        $("#NoOfOrders").html(response.nooforders);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', status, error);
+                }
+            });
+        }
+
+        setInterval(checkForNewOrder, 5000);
+    });
+</script>

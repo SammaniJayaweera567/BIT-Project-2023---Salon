@@ -1,6 +1,6 @@
 <?php
 session_start();
-ob_start(); // Multiple header error removal
+ob_start(); // For avoiding multiple header errors
 include 'header2.php';
 include '../function.php';
 
@@ -10,85 +10,74 @@ if (!isset($_SESSION['USERID'])) {
     exit();
 }
 
+// Fetch customer ID
 $db = dbConn();
 $userid = $_SESSION['USERID'];
-
-// Fetch customer ID
 $sql = "SELECT CustomerId FROM customers WHERE UserId='$userid'";
 $result = $db->query($sql);
 $row = $result->fetch_assoc();
 $customerid = $row['CustomerId'];
 
-// Fetch orders
+// Fetch order details
 $sql = "SELECT * FROM orders WHERE customer_id='$customerid' ORDER BY order_date DESC";
-$orders = $db->query($sql);
+$result = $db->query($sql);
 
-// Check if there is a success message
-$order_success_message = '';
-if (isset($_GET['status']) && $_GET['status'] === 'success') {
-    $order_success_message = 'Order placed successfully! Your order ID is ' . (isset($_SESSION['order_id']) ? htmlspecialchars($_SESSION['order_id'], ENT_QUOTES, 'UTF-8') : 'N/A');
-    unset($_SESSION['order_id']); // Clear the order ID after displaying the message
+// Handle any status messages
+$status_message = '';
+if (isset($_GET['status']) && $_GET['status'] == 'success') {
+    $order_id = $_SESSION['order_id'] ?? 'N/A';
+    $order_number = $_SESSION['order_number'] ?? 'N/A';
+    $status_message = "Your order has been successfully placed. Order Number: " . htmlspecialchars($order_number);
+    unset($_SESSION['order_id']); // Clear the order ID from session
+    unset($_SESSION['order_number']); // Clear the order number from session
 }
 ?>
 
 <main id="main">
-    <section class="order-history-section py-5 my-5">
-        <div class="container mt-5 py-5">
-            <!-- Profile Management Card -->
-            <div class="card card-profile-manage mb-3 my-5 border mx-auto">
-                <div class="card-header card-header bg-dark-black text-light-yellow">
-                    Order History
+    <div class="container-fluid py-5" style="margin-top: 120px;">
+        <div class="container py-5">
+            <h3 class="fw-bolder mb-5">Order Details</h3>
+
+            <?php if ($status_message): ?>
+                <div class="alert alert-success" role="alert">
+                    <?= $status_message; ?>
                 </div>
-                <div class="card-body">
-                    <?php if ($order_success_message): ?>
-                        <div class="alert alert-success">
-                            <?= htmlspecialchars($order_success_message, ENT_QUOTES, 'UTF-8'); ?>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <?php if ($orders->num_rows > 0): ?>
-                        <table class="table table-bordered mt-4">
-                            <thead>
+            <?php endif; ?>
+
+            <?php if ($result->num_rows > 0): ?>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Order Date</th>
+                                <th>Delivery Name</th>
+                                <th>Billing Name</th>
+                                <th>Order Number</th>
+                                <th>Total</th>
+                                <th>Order Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($order = $result->fetch_assoc()): ?>
                                 <tr>
-                                    <th>Order Number</th>
-                                    <th>Order Date</th>
-                                    <th>Delivery Name</th>
-                                    <th>Delivery Address</th>
-                                    <th>Billing Name</th>
-                                    <th>Billing Address</th>
-                                    <th>Shipping Method</th>
-                                    <th>Payment Method</th>
-                                    <th>Order Details</th>
+                                    <td><?= htmlspecialchars($order['order_id'] ?? 'N/A'); ?></td>
+                                    <td><?= htmlspecialchars($order['order_date'] ?? 'N/A'); ?></td>
+                                    <td><?= htmlspecialchars($order['delivery_name'] ?? 'N/A'); ?></td>
+                                    <td><?= htmlspecialchars($order['billing_name'] ?? 'N/A'); ?></td>
+                                    <td><?= htmlspecialchars($order['order_number'] ?? 'N/A'); ?></td>
+                                    <td><?= number_format($order['total'] ?? 0.00, 2); ?> LKR</td>
+                                    <td><?= htmlspecialchars($order['order_status'] ?? 'N/A'); ?></td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($order = $orders->fetch_assoc()): ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($order['order_number'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= htmlspecialchars($order['order_date'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= htmlspecialchars($order['delivery_name'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= htmlspecialchars($order['delivery_address'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= htmlspecialchars($order['billing_name'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= htmlspecialchars($order['billing_address'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= htmlspecialchars($order['shipping_method'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= htmlspecialchars($order['payment_method'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td>
-                                            <a href="order_details.php?order_id=<?= htmlspecialchars($order['order_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-info">View Details</a>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    <?php else: ?>
-                        <p>No orders found.</p>
-                    <?php endif; ?>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
+            <?php else: ?>
+                <p>No orders found.</p>
+            <?php endif; ?>
         </div>
-    </section>
+    </div>
 </main>
 
-<?php
-include 'footer.php';
-ob_end_flush();
-?>
+<?php include 'footer.php'; ?>

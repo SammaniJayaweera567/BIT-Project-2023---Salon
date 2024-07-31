@@ -38,7 +38,7 @@ include '../function.php'; // Ensure this path is correct
     <!-- Fruits Shop Start -->
     <div class="container-fluid fruite py-5">
         <div class="container py-5">
-            <h1 class="mb-4">Fresh fruits shop</h1>
+            <h1 class="mb-4">Beauty Products</h1>
             <div class="row g-4">
                 <div class="col-lg-12">
                     <div class="row g-4">
@@ -113,7 +113,9 @@ include '../function.php'; // Ensure this path is correct
                                 if (isset($_SESSION['cart'])) {
                                     $cart = $_SESSION['cart'];
                                     foreach ($cart as $key => $value) {
-                                        $total += $value['qty'] * $value['unit_price'];
+                                        if (isset($value['unit_price'])) {
+                                            $total += $value['qty'] * $value['unit_price'];
+                                        }
                                         $noitmes += $value['qty'];
                                     }
                                 }
