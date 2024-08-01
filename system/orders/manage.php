@@ -8,7 +8,6 @@ $breadcrumb_item_active = "Manage";
 ?> 
 <div class="row">
     <div class="col-12">
-        
         <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
             <input type="date" name="from_date">
             <input type="date" name="to_date">
@@ -34,6 +33,7 @@ $breadcrumb_item_active = "Manage";
             </div>
             <!-- /.card-header -->
             <div class="card-body table-responsive p-0">
+                <!--filter data from table-->
                 <?php
                 $where = null;
                 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -41,23 +41,23 @@ $breadcrumb_item_active = "Manage";
                     if (!empty($from_date) && !empty($to_date)) {
                         $where .= " item_stock.purchase_date BETWEEN '$from_date' AND '$to_date' AND";
                     }
-                    
-                    if(!empty($item_name)){
-                        $where.=" items.item_name='$item_name' AND";
+
+                    if (!empty($item_name)) {
+                        $where .= " items.item_name='$item_name' AND";
                     }
-                    
-                    if(!empty($supplier_name)){
-                        $where.=" supplier.supplier_name='$supplier_name' AND";
+
+                    if (!empty($supplier_name)) {
+                        $where .= " supplier.supplier_name='$supplier_name' AND";
                     }
-                    
-                    if(!empty($where)){
-                        $where= substr($where, 0,-3);
-                        $where=" WHERE $where";
+
+                    if (!empty($where)) {
+                        $where = substr($where, 0, -3);
+                        $where = " WHERE $where";
                     }
                 }
 
                 $db = dbConn();
-                $sql = "SELECT o.*,c.FirstName,c.LastName FROM `orders` o INNER JOIN customers c ON c.CustomerId=o.customer_id";
+                ECHO $sql = "SELECT o.*,c.FirstName,c.LastName FROM `orders` o INNER JOIN customers c ON c.CustomerId=o.customer_id";
                 $result = $db->query($sql);
                 ?>
 
@@ -67,8 +67,6 @@ $breadcrumb_item_active = "Manage";
                             <th>Order Date</th>
                             <th>Customer</th>
                             <th>Order Number</th>
-                            <th></th>
-                            
                         </tr>
                     </thead>
                     <tbody>

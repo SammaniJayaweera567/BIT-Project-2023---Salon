@@ -66,13 +66,8 @@ include_once 'init.php';
         <!-- small box -->
         <div class="small-box" style="border-left: 3px solid #17a2b8 !important; background: #ffff !important;">
             <div class="inner">
-                <?php
-                $db = dbConn();
-                $sql = "SELECT COUNT(*) AS 'NOOFORDERS' FROM orders";
-                $result = $db->query($sql);
-                $row = $result->fetch_assoc();
-                ?>
-                <h3 id="NoOfOrders" style="color: #17a2b8"><?= $row['NOOFORDERS'] ?></h3>
+                
+                <h3 id="NoOfOrders" style="color: #17a2b8"></h3>
 
                 <p>New Orders</p>
             </div>
