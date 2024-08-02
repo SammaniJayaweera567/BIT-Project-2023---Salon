@@ -58,7 +58,7 @@ $breadcrumb_item_active = "Manage";
                 }
 
                 $db = dbConn();
-               ECHO $sql = "SELECT
+              $sql = "SELECT
     `item_stock`.`id`
     , `items`.`item_name`
     , `item_category`.`category_name`
@@ -73,7 +73,7 @@ FROM
     INNER JOIN `item_category` 
         ON (`item_category`.`id` = `items`.`item_category`)
     INNER JOIN `supplier` 
-        ON (`supplier`.`id` = `item_stock`.`supplier_id`) $where;";
+        ON (`supplier`.`supplier_id` = `item_stock`.`item_id`) $where;";
                 $result = $db->query($sql);
                 ?>
 
