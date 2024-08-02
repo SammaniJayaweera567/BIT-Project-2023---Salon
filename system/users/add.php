@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $DesignationId = dataClean($DesignationId);
     $AppDate = dataClean($AppDate);
     $UserName = dataClean($UserName);
+    $Password = dataClean($Password);
     
     $message = array();
     if (empty($FirstName)) {
@@ -53,9 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     if (empty($message)) {
         //Use bcrypt hasing algorithem
-        $pw = password_hash($Password, PASSWORD_DEFAULT);
+        $pw_hashed = password_hash($Password, PASSWORD_DEFAULT);
         $db = dbConn();
-        $sql = "INSERT INTO users(FirstName,LastName,UserName,Password,UserType,Status) VALUES ('$FirstName','$LastName','$UserName','$password','employee','1')";
+        $sql = "INSERT INTO users(FirstName,LastName,UserName,Password,UserType,Status,State) VALUES ('$FirstName','$LastName','$UserName','$pw_hashed','employee','1','1')";
         $db->query($sql);
         $UserId = $db->insert_id;
 

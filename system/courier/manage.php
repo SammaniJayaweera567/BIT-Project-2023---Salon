@@ -10,7 +10,7 @@ $breadcrumb_item_active = "Manage";
 <div class="row">
     <div class="col-12">
         <!-- Add 'new' button hyperlink -->
-        <a href="<?= SYS_URL ?>couriers/add.php" class="btn btn-dark mb-2 manage-button"><i class="fas fa-plus-circle"></i> New</a>
+        <a href="<?= SYS_URL ?>courier/add.php" class="btn btn-dark mb-2 manage-button"><i class="fas fa-plus-circle"></i> New</a>
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Courier Details</h3>
@@ -34,7 +34,7 @@ $breadcrumb_item_active = "Manage";
                 $sql = "SELECT * FROM courier";
                 $result = $db->query($sql);
                 ?>
-                <table class="table table-hover text-nowrap">
+                <table id="courier" class="table table-hover text-nowrap">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -62,8 +62,8 @@ $breadcrumb_item_active = "Manage";
                                     <td><?= $row['company_email'] ?></td>
                                     <td><?= $row['mobile_number'] ?></td>
                                     <!-- Pass courier_id to edit.php -->
-                                    <td><a href="<?= SYS_URL ?>couriers/edit.php?courier_id=<?= $row['courier_id'] ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a></td>
-                                    <td><a href="<?= SYS_URL ?>couriers/delete.php?courier_id=<?= $row['courier_id'] ?>" class="btn btn-danger" onclick="return confirmDelete()"><i class="fas fa-trash"></i> Delete</a></td>
+                                    <td><a href="<?= SYS_URL ?>courier/edit.php?courier_id=<?= $row['courier_id'] ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a></td>
+                                    <td><a href="<?= SYS_URL ?>courier/delete.php?courier_id=<?= $row['courier_id'] ?>" class="btn btn-danger" onclick="return confirmDelete()"><i class="fas fa-trash"></i> Delete</a></td>
                                 </tr>
                                 <?php
                             }
@@ -87,3 +87,24 @@ include '../layouts.php';
         return confirm("Are you sure you want to delete this record?");
     }
 </script>
+
+
+<!--Adding a datatable in this form-->
+<script>
+  $(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    $('#courier').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  });
+</script>
+

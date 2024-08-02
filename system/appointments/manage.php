@@ -46,7 +46,7 @@ FROM
         ON appointments.customer_id = customers.CustomerId";
                 $result = $db->query($sql);
                 ?>
-                <table class="table table-hover text-nowrap">
+                <table id="appointments" class="table table-hover text-nowrap">
                     <thead>
                         <tr>                           
                             <th>First Name</th>
@@ -91,3 +91,22 @@ FROM
 $content = ob_get_clean();
 include '../layouts.php';           //Assign design to layout template 
 ?>
+
+<!--Adding a datatable in this form-->
+<script>
+  $(function () {
+    $("#appointments").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": ["excel", "pdf", "print"]
+    }).buttons().container().appendTo('#appointments_wrapper .col-md-6:eq(0)');
+    $('#appointments1').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  });
+</script>

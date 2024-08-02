@@ -11,7 +11,7 @@ $db = dbConn();
 // Fetch data from the merged tables
 $query = "
     SELECT 
-        items.id AS item_id,
+        items.item_id AS item_id,
         items.item_name,
         item_category.category_name,
         item_category.status AS category_status,
@@ -22,9 +22,9 @@ $query = "
     FROM 
         items
     LEFT JOIN 
-        item_category ON items.id = item_category.id
+        item_category ON items.item_category = item_category.id
     LEFT JOIN 
-        item_stock ON items.id = item_stock.item_id
+        item_stock ON items.item_id = item_stock.item_id
 ";
 $result = $db->query($query);
 ?>
@@ -39,7 +39,7 @@ $result = $db->query($query);
                 <h3 class="card-title">Manage Items</h3>
             </div>
             <div class="card-body">
-                <table class="table table-bordered">
+                <table id="items" class="table table-bordered">
                     <thead>
                         <tr>
                             <th>Item ID</th>
@@ -81,3 +81,18 @@ $result = $db->query($query);
 $content = ob_get_clean();
 include '../layouts.php';
 ?>
+
+<!--Adding a datatable in this form-->
+<script>
+  $(function () {
+    $("#items").DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  });
+</script>

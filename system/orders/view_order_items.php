@@ -6,20 +6,25 @@ $link = "Order Management";
 $breadcrumb_item = "Order";
 $breadcrumb_item_active = "View Items";
 
-extract($_GET);
+if (isset($_GET['order_id'])) {
+    $order_id = $_GET['order_id'];
+}
 
 $db = dbConn();
-$order_sql = "SELECT o.*, c.FirstName, c.LastName FROM `orders` o INNER JOIN customers c ON c.CustomerId = o.customer_id WHERE o.id = '$order_id'";
-$order_result = $db->query($order_sql);
-$order_row = $order_result->fetch_assoc();
+$sql = "SELECT o.*, c.FirstName, c.LastName FROM `orders` o 
+        INNER JOIN customers c ON c.CustomerId = o.customer_id 
+        WHERE o.id = ?";
+$stmt = $db->prepare($sql);
+$stmt->bind_param("i", $order_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
 ?>
-
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Order Items Details</h3>
-
+                <h3 class="card-title">Order Item Details</h3>
                 <div class="card-tools">
                     <div class="input-group input-group-sm" style="width: 150px;">
                         <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
@@ -31,85 +36,97 @@ $order_row = $order_result->fetch_assoc();
                     </div>
                 </div>
             </div>
+            <!-- /.card-header -->
             <div class="card-body table-responsive p-0">
                 <div class="row">
                     <div class="col">
-                        <div class="card m-3">
+                        <div class="card">
                             <div class="card-body">
                                 <h4>Customer Details</h4>
-                                <?= htmlspecialchars($order_row['FirstName']) ?> <?= htmlspecialchars($order_row['LastName']) ?>
+                                <?= htmlspecialchars($row['FirstName']) ?> <?= htmlspecialchars($row['LastName']) ?>
                             </div>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card m-3">
+                        <div class="card">
                             <div class="card-body">
                                 <h4>Billing Details</h4>
-                                <?= htmlspecialchars($order_row['billing_name']) ?> 
+                                <?= htmlspecialchars($row['billing_name']) ?>
                                 <br>
-                                <?= htmlspecialchars($order_row['billing_address']) ?>   
+                                <?= htmlspecialchars($row['billing_address']) ?>
                             </div>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card m-3">
+                        <div class="card">
                             <div class="card-body">
                                 <h4>Delivery Details</h4>
-                                <?= htmlspecialchars($order_row['delivery_name']) ?> 
+                                <?= htmlspecialchars($row['delivery_name']) ?>
                                 <br>
-                                <?= htmlspecialchars($order_row['delivery_address']) ?> 
+                                <?= htmlspecialchars($row['delivery_address']) ?>
                                 <br>
-                                <?= htmlspecialchars($order_row['delivery_phone']) ?> 
+                                <?= htmlspecialchars($row['delivery_phone']) ?>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <?php
-                $item_sql = "SELECT order_items.item_id, items.item_name, order_items.qty, order_items.unit_price, (stock.tqty - COALESCE(stock.iqty, 0)) AS remqty 
-                             FROM order_items 
-                             INNER JOIN items ON items.id = order_items.item_id 
-                             LEFT JOIN (
-                                SELECT item_id, unit_price, SUM(qty) AS tqty, SUM(issued_qty) AS iqty 
-                                FROM item_stock 
-                                GROUP BY item_id, unit_price
-                             ) AS stock ON stock.item_id = order_items.item_id AND stock.unit_price = order_items.unit_price 
-                             WHERE order_items.order_id = '$order_id'";
-                $item_result = $db->query($item_sql);
+                $sql = "SELECT o.order_id, o.item_id, o.unit_price, SUM(o.qty) AS total_qty, i.item_name,
+                               (COALESCE(stock_totals.total_qty, 0) - COALESCE(stock_totals.total_issued_qty, 0)) AS balance_qty
+                        FROM order_items o 
+                        INNER JOIN items i ON i.id = o.item_id 
+                        LEFT JOIN (
+                            SELECT item_id, unit_price, SUM(qty) AS total_qty, SUM(issued_qty) AS total_issued_qty 
+                            FROM item_stock 
+                            GROUP BY item_id, unit_price
+                        ) AS stock_totals ON stock_totals.item_id = o.item_id AND stock_totals.unit_price = o.unit_price
+                        WHERE o.order_id = ?
+                        GROUP BY o.order_id, o.item_id, o.unit_price, i.item_name, balance_qty";
+                $stmt = $db->prepare($sql);
+                $stmt->bind_param("i", $order_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
                 ?>
-                <table class="table table-hover text-nowrap">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Unit Price</th>
-                            <th>Qty</th>
-                            <th>Rem.Qty</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        if ($item_result->num_rows > 0) {
-                            while ($item_row = $item_result->fetch_assoc()) {
-                                $item_id = $item_row['item_id'];
-                                $unit_price = $item_row['unit_price'];
-                                $remqty_sql = "SELECT (qty - COALESCE(issued_qty, 0)) as remqty FROM `item_stock` WHERE item_id = '$item_id' AND unit_price = '$unit_price'";
-                                $remqty_result = $db->query($remqty_sql);
-                                $remqty_row = $remqty_result->fetch_assoc();
-                                ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($item_row['item_name']) ?></td>
-                                    <td><?= htmlspecialchars($unit_price) ?></td>
-                                    <td><?= htmlspecialchars($item_row['qty']) ?></td>
-                                    <td><?= htmlspecialchars($remqty_row['remqty']) ?></td>
-                                </tr>
-                                <?php
+                <form action="../inventory/issue.php" method="post">
+                    <table class="table table-hover text-nowrap">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Unit Price</th>
+                                <th>Ordered Qty</th>
+                                <th>Balance Qty</th>
+                                <th>Issued Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($row['item_name']) ?></td>
+                                        <td><?= htmlspecialchars($row['unit_price']) ?></td>
+                                        <td><?= htmlspecialchars($row['total_qty']) ?></td>
+                                        <td><?= htmlspecialchars($row['balance_qty']) ?></td>
+                                        <td>
+                                            <input type="hidden" name="items[]" value="<?= htmlspecialchars($row['item_id']) ?>">
+                                            <input type="hidden" name="order_id" value="<?= htmlspecialchars($row['order_id']) ?>">
+                                            <input type="hidden" name="prices[]" value="<?= htmlspecialchars($row['unit_price']) ?>">
+                                            <input type="text" name="issued_qty[]" required>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                }
                             }
-                        }
-                        ?>
-                    </tbody>
-                </table>
+                            ?>
+                        </tbody>
+                    </table>
+                    <button type="submit" class="btn btn-primary">Issue</button>
+                </form>
             </div>
+            <!-- /.card-body -->
         </div>
+        <!-- /.card -->
     </div>
 </div>
 <?php

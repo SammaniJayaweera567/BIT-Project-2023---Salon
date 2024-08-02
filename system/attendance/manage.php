@@ -2,18 +2,18 @@
 ob_start();
 include_once '../init.php';
 
-$link = "User Management";
-$breadcrumb_item = "User";
+$link = "Attendance Management";
+$breadcrumb_item = "Attendance";
 $breadcrumb_item_active = "Manage";
 ?>
 
 <div class="row">
     <div class="col-12">
         <!--Add 'new' button hyperlink-->
-        <a href="<?= SYS_URL ?>users/add.php" class="btn btn-dark mb-2 manage-button"><i class="fas fa-plus-circle"></i> New</a>
+        <a href="<?= SYS_URL ?>attendance/add.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> New</a>
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">User Details</h3>
+                <h3 class="card-title">Attendance Details</h3>
 
                 <div class="card-tools">
                     <div class="input-group input-group-sm" style="width: 150px;">
@@ -31,19 +31,20 @@ $breadcrumb_item_active = "Manage";
             <div class="card-body table-responsive p-0">
                 <?php
                 $db = dbConn();
-                $sql = "SELECT * FROM users u "
-                        . "INNER JOIN employee e ON e.UserId=u.UserId "
-                        . "LEFT JOIN designations p ON p.Id=e.DesignationId";
+                $sql = "SELECT a.attendance_id, a.EmployeeId, a.attendance_date, a.check_in_time, a.check_out_time, a.status
+                        FROM attendance a
+                        JOIN employee e ON a.EmployeeId = e.EmployeeId";
                 $result = $db->query($sql);
                 ?>
-                <table id="users" class="table table-hover text-nowrap">
+                <table id="attendance" class="table table-hover text-nowrap">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>App. Date</th>
-                            <th>Designation</th>
+                            <th>Attendance ID</th>
+                            <th>Employee ID</th>
+                            <th>Attendance Date</th>
+                            <th>Check-in Time</th>
+                            <th>Check-out Time</th>
+                            <th>Status</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -54,18 +55,24 @@ $breadcrumb_item_active = "Manage";
                             while ($row = $result->fetch_assoc()) {
                                 ?>
                                 <tr>
-                                    <td><?= $row['UserId'] ?></td>
-                                    <td><?= $row['FirstName'] ?></td>
-                                    <td><?= $row['LastName'] ?></td>
-                                    <td><?= $row['AppDate'] ?></td>
-                                    <td><?= $row['Designation'] ?></td>
-                                    <!--Pass userid to edit.php-->
-                                    <td><a href="<?= SYS_URL ?>users/edit.php?userid=<?= $row['UserId'] ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a></td>
-                                    <td><a href="<?= SYS_URL ?>users/delete.php?userid=<?= $row['UserId'] ?>" class="btn btn-danger" onclick="return confirmDelete()"><i class="fas fa-trash"></i> Delete</a></td>
+                                    <td><?= $row['attendance_id'] ?></td>
+                                    <td><?= $row['EmployeeId'] ?></td>
+                                    <td><?= $row['attendance_date'] ?></td>
+                                    <td><?= $row['check_in_time'] ?></td>
+                                    <td><?= $row['check_out_time'] ?></td>
+                                    <td><?= $row['status'] ?></td>
+                                    <!--Pass attendance_id to edit.php-->
+                                    <td><a href="<?= SYS_URL ?>attendance/edit.php?attendance_id=<?= $row['attendance_id'] ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a></td>
+                                    <td><a href="<?= SYS_URL ?>attendance/delete.php?attendance_id=<?= $row['attendance_id'] ?>" class="btn btn-danger" onclick="return confirmDelete()"><i class="fas fa-trash"></i> Delete</a></td>
                                 </tr>
-
                                 <?php
                             }
+                        } else {
+                            ?>
+                            <tr>
+                                <td colspan="8">No attendance records found</td>
+                            </tr>
+                            <?php
                         }
                         ?>
                     </tbody>
@@ -76,6 +83,7 @@ $breadcrumb_item_active = "Manage";
         <!-- /.card -->
     </div>
 </div>
+
 <?php
 $content = ob_get_clean();
 include '../layouts.php';
@@ -90,11 +98,7 @@ include '../layouts.php';
 <!--Adding a datatable in this form-->
 <script>
   $(function () {
-    $("#example1").DataTable({
-      "responsive": true, "lengthChange": false, "autoWidth": false,
-      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-    $('#users').DataTable({
+    $('#attendance').DataTable({
       "paging": true,
       "lengthChange": false,
       "searching": false,

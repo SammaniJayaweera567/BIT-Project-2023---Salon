@@ -8,6 +8,7 @@ $breadcrumb_item_active = "Add";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     extract($_POST);
+    $CourierId = dataClean($CourierId);
     $CourierName = dataClean($CourierName);
     $CompanyName = dataClean($CompanyName);
     $CompanyAddress = dataClean($CompanyAddress);
@@ -16,6 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $MobileNumber = dataClean($MobileNumber);
     
     $message = array();
+     if (empty($CourierId)) {
+        $message['CourierId'] = "The Courier ID should not be blank...!";
+    }
     if (empty($CourierName)) {
         $message['CourierName'] = "The Courier Name should not be blank...!";
     }
@@ -37,8 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (empty($message)) {
         $db = dbConn();
-        $sql = "INSERT INTO courier(CourierName, CompanyName, CompanyAddress, CompanyPhoneNo, CompanyEmail, MobileNumber) 
-                VALUES ('$CourierName','$CompanyName','$CompanyAddress','$CompanyPhoneNo','$CompanyEmail','$MobileNumber')";
+        $sql = "INSERT INTO `courier`(`courier_id`, `courier_name`, `company_name`, `company_address`, `company_phone_no`, `company_email`, `mobile_number`) 
+                VALUES ('$CourierId', '$CourierName','$CompanyName','$CompanyAddress','$CompanyPhoneNo','$CompanyEmail','$MobileNumber')";
         $db->query($sql);
 
         header("Location:manage.php");
@@ -55,6 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
                 <div class="card-body">
+                    <div class="form-group">
+                        <label for="CourierId">ID</label>
+                        <input type="text" class="form-control" id="CourierId" name="CourierId" placeholder="Enter Courier ID" value="<?= @$CourierId ?>">
+                        <span class="text-danger"><?= @$message['CourierId'] ?></span>
+                    </div>
                     <div class="form-group">
                         <label for="CourierName">Courier Name</label>
                         <input type="text" class="form-control" id="CourierName" name="CourierName" placeholder="Enter Courier Name" value="<?= @$CourierName ?>">

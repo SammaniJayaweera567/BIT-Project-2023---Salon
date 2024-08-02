@@ -34,7 +34,7 @@ $breadcrumb_item_active = "Manage";
                 $sql = "SELECT * FROM services";
                 $result = $db->query($sql);
                 ?>
-                <table class="table table-hover text-nowrap">
+                <table id="services" class="table table-hover text-nowrap">
                     <thead>
                         <tr>
                             <th>Service ID</th>
@@ -93,4 +93,24 @@ include '../layouts.php';
     function confirmDelete() {
         return confirm("Are you sure you want to delete this record?");
     }
+</script>
+
+
+<!--Adding a datatable in this form-->
+<script>
+  $(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    $('#services').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  });
 </script>
