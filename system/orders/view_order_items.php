@@ -9,7 +9,7 @@ $breadcrumb_item_active = "View Items";
 extract($_GET);
 
 $db = dbConn();
-$sql = "SELECT o.*,c.FirstName,c.LastName FROM `orders` o INNER JOIN customers c ON c.CustomerId=o.customer_id WHERE o.id='$order_id'";
+echo $sql = "SELECT o.*,c.FirstName,c.LastName FROM `orders` o INNER JOIN customers c ON c.CustomerId=o.customer_id WHERE o.id='$order_id'";
 $result = $db->query($sql);
 $row = $result->fetch_assoc();
 $order_status = $row['order_status'];
@@ -78,12 +78,12 @@ $order_status = $row['order_status'];
     o.unit_price,
     o.qty,
     i.item_name,
-    o.issued_qty,
+    stock_totals.total_issued_qty,
     (COALESCE(stock_totals.total_qty, 0) - COALESCE(stock_totals.total_issued_qty, 0)) AS balance_qty
 FROM 
     order_items o 
 INNER JOIN 
-    items i ON i.id = o.item_id 
+    items i ON i.item_id = o.item_id 
 LEFT JOIN 
     (
         SELECT 
@@ -98,8 +98,6 @@ LEFT JOIN
     ) AS stock_totals ON stock_totals.item_id = o.item_id and  stock_totals.unit_price=o.unit_price
 WHERE 
     o.order_id = '$order_id'
-GROUP BY 
-    o.order_id, o.item_id, o.unit_price;
 ";
                 $result = $db->query($sql);
                 ?>

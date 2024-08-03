@@ -69,7 +69,7 @@ $breadcrumb_item_active = "Manage";
 FROM
     `items`
     INNER JOIN `item_stock` 
-        ON (`items`.`id` = `item_stock`.`item_id`)
+        ON (`items`.`item_id` = `item_stock`.`item_id`)
     INNER JOIN `item_category` 
         ON (`item_category`.`id` = `items`.`item_category`)
     INNER JOIN `supplier` 

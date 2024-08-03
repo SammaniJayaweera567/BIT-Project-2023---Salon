@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $operate == 'add_cart') {
     $db = dbConn();
 
     $sql = "SELECT * FROM item_stock INNER JOIN items 
-        ON (items.id = item_stock.item_id) WHERE item_stock.id='$id'";
+        ON (items.item_id = item_stock.item_id) WHERE item_stock.id='$id'";
 
     $result = $db->query($sql);
     

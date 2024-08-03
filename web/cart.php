@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && @$action == 'update_qty') {
     <div class="container-fluid py-5">
         <div class="container py-5">
             <div class="table-responsive">
-                <a href="cart.php?action=empty" class="empty-card-link">Empty Cart</a>
+                <a href="cart.php?action=empty" class="empty-cart-link">Empty Cart</a>
                 <table class="table cart">
                     <thead>
                         <tr>
@@ -121,13 +121,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && @$action == 'update_qty') {
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <h5 class="mb-0 me-4">Shipping</h5>
-                                    <p class="mb-0">Flat rate: LKR 3.00</p>
+                                    <p class="mb-0">All Island Delivery</p>
                                 </div>
                                 <p class="mb-0 text-end">Shipping to Sri Lanka.</p>
                             </div>
                             <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
                                 <h5 class="mb-0 ps-4 me-4">Total</h5>
-                                <p class="mb-0 pe-4">LKR <?= number_format($total + 3, 2) ?></p>
+                                <p class="mb-0 pe-4">LKR <?= number_format($total - ($total * 0.03), 2) ?></p>
                             </div>
                             <a href="checkout.php" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4">Proceed Checkout</a>
                         </div>

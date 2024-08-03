@@ -24,21 +24,41 @@ foreach ($cart as $item) {
     $total += $item['qty'] * $item['unit_price'];
 }
 
+// Apply discount and calculate net subtotal
+$discount_percentage = 0.03; // 3% discount
+$discount = $total * $discount_percentage;
+$net_subtotal = $total - $discount;
+
+// Initialize shipping cost
+$shipping_cost = 0;
+$shipping_method = '';
+
+// Process the form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Process the order
-    $shipping_method = $_POST['shipping_method'] ?? '';
     $payment_method = $_POST['payment_method'] ?? '';
     $payment_slip = isset($_FILES['payment_slip']) ? $_FILES['payment_slip'] : null;
     $message = array();
 
-    if (empty($shipping_method)) {
-        $message['shipping_method'] = "Please select a shipping method.";
-    }
     if (empty($payment_method)) {
         $message['payment_method'] = "Please select a payment method.";
     }
+    
     if ($payment_method == 'bank_slip' && !$payment_slip) {
         $message['payment_slip'] = "Please upload a bank slip.";
+    }
+
+    // Set shipping cost based on the selected payment method
+    if ($payment_method == 'cash_on_delivery') {
+        $shipping_cost = 300.00; // Fixed shipping cost for cash on delivery
+    } elseif ($payment_method == 'bank_slip') {
+        $shipping_method = $_POST['shipping_method'] ?? '';
+        if ($shipping_method == 'express') {
+            $shipping_cost = 300.00;
+        } elseif ($shipping_method == 'standard') {
+            $shipping_cost = 150.00;
+        } elseif ($shipping_method == '') {
+            $message['shipping_method'] = "Please select a shipping method.";
+        }
     }
 
     if (empty($message)) {
@@ -52,8 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $order_number = date('Y') . date('m') . date('d') . $customerid;
 
         // Insert order into the database
-        $sql = "INSERT INTO orders(order_date, customer_id, delivery_name, delivery_address, delivery_phone, billing_name, billing_address, billing_phone, order_number, shipping_method, payment_method) 
-                VALUES ('$order_date', '$customerid', '$delivery_name', '$delivery_address', '$delivery_phone', '$billing_name', '$billing_address', '$billing_phone', '$order_number', '$shipping_method', '$payment_method')";
+        $sql = "INSERT INTO orders(order_date, customer_id, delivery_name, delivery_address, delivery_phone, billing_name, billing_address, billing_phone, order_number, shipping_method, payment_method, shipping_cost) 
+                VALUES ('$order_date', '$customerid', '$delivery_name', '$delivery_address', '$delivery_phone', '$billing_name', '$billing_address', '$billing_phone', '$order_number', '$shipping_method', '$payment_method', '$shipping_cost')";
         $db->query($sql);
 
         // Get the newly created order ID
@@ -87,6 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+
+// Calculate total with shipping cost
+$total_with_shipping = $net_subtotal + $shipping_cost;
 ?>
 
 <main id="main">
@@ -118,24 +141,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <?php endforeach; ?>
                                 <tr class="border-bottom">
                                     <td colspan="4" class="text-end">Subtotal</td>
-                                    <td><?= number_format($total, 2); ?> LKR</td>
+                                    <td id="subtotal"><?= number_format($total, 2); ?> LKR</td>
                                 </tr>
-                                <tr class="border-bottom">
-                                    <td colspan="4" class="text-end">Shipping</td>
-                                    <td>
-                                        <select name="shipping_method" id="shipping_method" class="form-select">
-                                            <option value="">Select a shipping method</option>
-                                            <option value="express">Express - 300.00 LKR</option>
-                                            <option value="standard">Standard - 150.00 LKR</option>
-                                        </select>
-                                        <?php if (isset($message['shipping_method'])): ?>
-                                            <div class="text-danger"><?= htmlspecialchars($message['shipping_method']); ?></div>
-                                        <?php endif; ?>
-                                    </td>
+                                <tr>
+                                    <td colspan="4" class="text-end">Discount (3%)</td>
+                                    <td id="discount"><?= number_format($discount, 2); ?> LKR</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end">Net Subtotal</td>
+                                    <td id="net_subtotal"><?= number_format($net_subtotal, 2); ?> LKR</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end">Shipping Cost</td>
+                                    <td id="shipping_cost"><?= number_format($shipping_cost, 2); ?> LKR</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4" class="text-end fw-bold">Total</td>
-                                    <td class="fw-bold"><?= number_format($total, 2); ?> LKR</td>
+                                    <td class="fw-bold" id="total_with_shipping"><?= number_format($total_with_shipping, 2); ?> LKR</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -147,6 +169,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <div class="mt-4">
                                     <input type="radio" name="payment_method" value="cash_on_delivery" id="cash_on_delivery">
                                     <label for="cash_on_delivery" class="ms-2">Cash on Delivery</label>
+                                     <div id="shipping_method_select" style="display: none;">
+<!--                                    <input type="radio" name="shipping_method" value="express" id="express">
+                                    <label for="express" class="ms-2">Express Delivery - 300 LKR</label>
+                                    <br>-->
+                                    <?php if (isset($message['shipping_method'])): ?>
+                                        <div class="text-danger"><?= htmlspecialchars($message['shipping_method']); ?></div>
+                                    <?php endif; ?>
+                                </div>
                                 </div>
                                 <div class="mt-3">
                                     <input type="radio" name="payment_method" value="bank_slip" id="bank_slip">
@@ -162,25 +192,65 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <?php if (isset($message['payment_method'])): ?>
                                     <div class="text-danger"><?= htmlspecialchars($message['payment_method']); ?></div>
                                 <?php endif; ?>
-                                <script>
-                                    document.getElementById('bank_slip').addEventListener('change', function () {
-                                        document.getElementById('payment_slip_upload').style.display = 'block';
-                                    });
-                                    document.getElementById('cash_on_delivery').addEventListener('change', function () {
-                                        document.getElementById('payment_slip_upload').style.display = 'none';
-                                    });
-                                </script>
                             </div>
+                            
                         </div>
                         <div class="mt-5">
-                            <a href="order_history.php" type="submit"class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4">Place Order</a>
-                        </div>  
-                        
+                            <input type="submit" class="btn btn-primary" value="Place Order">
+                        </div>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
+    const paymentSlipUpload = document.getElementById('payment_slip_upload');
+    const shippingMethodSelect = document.getElementById('shipping_method_select');
+    const shippingCostElement = document.getElementById('shipping_cost');
+    const totalWithShippingElement = document.getElementById('total_with_shipping');
+    
+    paymentMethodRadios.forEach(radio => {
+        radio.addEventListener('change', function () {
+            if (this.value === 'bank_slip') {
+                paymentSlipUpload.style.display = 'block';
+                shippingMethodSelect.style.display = 'block';
+            } else {
+                paymentSlipUpload.style.display = 'none';
+                shippingMethodSelect.style.display = 'none';
+            }
+            if (this.value === 'cash_on_delivery') {
+                shippingCostElement.textContent = '300.00 LKR'; // Fixed shipping cost
+                updateTotal();
+            } else {
+                shippingCostElement.textContent = '0.00 LKR';
+                updateTotal();
+            }
+        });
+    });
+
+    document.querySelectorAll('input[name="shipping_method"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            let shippingCost = 0;
+            if (this.value === 'express') {
+                shippingCost = 300;
+            } else if (this.value === 'standard') {
+                shippingCost = 150;
+            }
+            shippingCostElement.textContent = `${shippingCost.toFixed(2)} LKR`;
+            updateTotal();
+        });
+    });
+
+    function updateTotal() {
+        const shippingCost = parseFloat(shippingCostElement.textContent);
+        const netSubtotal = parseFloat(document.getElementById('net_subtotal').textContent);
+        totalWithShippingElement.textContent = `${(netSubtotal + shippingCost).toFixed(2)} LKR`;
+    }
+});
+</script>
 
 <?php include 'footer.php'; ?>

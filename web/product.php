@@ -135,7 +135,7 @@ include '../function.php'; // Ensure this path is correct
                                         FROM
                                             item_stock
                                         INNER JOIN items 
-                                            ON items.id = item_stock.item_id
+                                            ON items.item_id = item_stock.item_id
                                         INNER JOIN item_category 
                                             ON item_category.id = items.item_category";
                                     $result = $db->query($sql);
