@@ -1,4 +1,6 @@
 <?php
+//ob start should be start allow multiple headers
+ob_start();
 session_start();
 include 'header2.php';
 include '../function.php';
@@ -350,3 +352,7 @@ $total_with_shipping = $net_subtotal + $shipping_cost;
     });
 
 </script>
+<?php
+
+    ob_end_flush();
+?>

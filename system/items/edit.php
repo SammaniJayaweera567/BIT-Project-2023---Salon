@@ -5,9 +5,10 @@ include_once '../init.php';
 $link = "Item Management";
 $breadcrumb_item = "Item";
 $breadcrumb_item_active = "Update";
-
+ extract($_GET);
+extract($_POST);
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    extract($_GET);
+   
     $db = dbConn();
     $sql = "SELECT * FROM items WHERE item_id='$id'";
     $result = $db->query($sql);
@@ -17,11 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $item_category = $row['item_category'];
     $item_image = $row['item_image'];
     $status = $row['status'];
-    $itemid = $row['item_id'];
+    $item_id = $row['item_id'];
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    extract($_POST);
+    
     $item_name = dataClean($item_name);
     $item_category = dataClean($item_category);
     $status = dataClean($status);
@@ -38,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Image upload
-    $item_image = ''; // Initialize variable to store image path
+    $item_image = $old_image; // Initialize variable to store image path, if new image upladed then old image removed
     if ($_FILES['item_image']['name']) {
         $target_dir = "uploads/";
         $target_file = $target_dir . basename($_FILES["item_image"]["name"]);
@@ -61,12 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($message)) {
         $db = dbConn();
         
-        // Check if an image was uploaded, if not, keep the existing image
-        $update_image = !empty($item_image) ? ", item_image='$item_image'" : "";
-
-        $sql = "UPDATE items SET item_name='$item_name', item_category='$item_category', status='$status' $update_image WHERE item_id='$itemid'";
+        
+        echo $sql = "UPDATE items SET item_name='$item_name', item_category='$item_category', status='$status' ,item_image='$item_image' WHERE item_id='$item_id'";
         $db->query($sql);
-        header("Location: manage.php");
+        //header("Location: manage.php");
     }
 }
 ?>
@@ -76,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="card-header">
                 <h3 class="card-title">Update Item</h3>
             </div>
-            <form action="<?= htmlspecialchars($_SERVER['PHP_SELF'] . "?itemid=$itemid"); ?>" method="post" enctype="multipart/form-data">
+            <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" enctype="multipart/form-data">
                 <div class="card-body">
                     <div class="form row">
                         <div class="form-group col-md-6">
@@ -84,13 +83,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <input type="text" class="form-control" id="item_name" name="item_name" placeholder="Enter Item Name" value="<?= @$item_name ?>">
                             <span class="text-danger"><?= @$message['item_name'] ?></span>
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-6" id="item_category" name="item_category">
                             <label for="item_category">Item Category</label>
                             <input type="text" class="form-control" id="item_category" name="item_category" placeholder="Enter Item Category" value="<?= @$item_category ?>">
                             <span class="text-danger"><?= @$message['item_category'] ?></span>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="item_image">Item Image</label>
                         <input type="file" class="form-control" id="item_image" name="item_image">
@@ -98,15 +96,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <?php if (!empty($item_image)) : ?>
                             <img src="<?= $item_image ?>" class="img-fluid mt-2" style="max-height: 200px;" alt="Item Image">
                         <?php endif; ?>
+                            <input type="text" name="old_image" value="<?= $item_image ?>">
                     </div>
-                    <div class="form-group">
+                       <div class="form-group">
                         <label for="status">Status</label>
-                        <input type="text" class="form-control" id="status" name="status" placeholder="Enter Status" value="<?= @$status ?>">
+                        <select class="form-control" id="status" name="status">
+                            <option value="">Select Status</option>
+                            <option value="1" <?= (isset($status) && $status == '1') ? 'selected' : '' ?>>Active</option>
+                            <option value="0" <?= (isset($status) && $status == '0') ? 'selected' : '' ?>>Inactive</option>
+                        </select>
                         <span class="text-danger"><?= @$message['status'] ?></span>
                     </div>
 
                 </div>
                 <div class="card-footer">
+                    <input type="text" name="item_id" value="<?= $item_id ?>">
                     <button type="submit" class="btn btn-primary">Update</button>
                     <a href="manage.php" class="btn btn-secondary">Cancel</a>
                 </div>
