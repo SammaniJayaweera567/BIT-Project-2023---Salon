@@ -778,3 +778,47 @@ a.empty-card-link {
 table.table.cart {
     margin-top: 30px;
 }
+
+
+/* Checkout Heading */
+.checkout-heading {
+    font-size: 1.75rem;
+    color: #343a40;
+}
+
+/* Card Styles */
+.delivery-details-card, .billing-details-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Header */
+.card-header {
+    background-color: #007bff;
+    color: #ffffff;
+    border-bottom: 1px solid #007bff;
+}
+
+/* Card Body */
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Form Labels */
+.form-label {
+    font-weight: 600;
+}
+
+/* Form Error Messages */
+.text-danger {
+    font-size: 0.875rem;
+    color: #dc3545;
+}
+
+div#bank_details_container {
+    padding: 20px;
+    background: #2d556a;
+    padding: 30px !important;
+    border-radius: 20px;
+    color: white;
+}

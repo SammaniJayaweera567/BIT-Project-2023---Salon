@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && @$action == 'update_qty') {
                             ?>
                             <tr>
                                 <td>
-                                    <img src="assets/img/<?= htmlspecialchars($value['item_image'] ?? '') ?>" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="">
+                                    <img src="../system/items/<?= htmlspecialchars($value['item_image'] ?? '') ?>" class="img-fluid me-5 rounded-circle" style="width: 100px; height: 100px;" alt="">
                                 </td>
                                 <td>
                                     <p class="mb-0 mt-4"><?= htmlspecialchars($value['item_name'] ?? '') ?></p>

@@ -9,7 +9,7 @@ $breadcrumb_item_active = "Update";
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     extract($_GET);
     $db = dbConn();
-    $sql = "SELECT * FROM items WHERE id='$itemid'";
+    $sql = "SELECT * FROM items WHERE item_id='$id'";
     $result = $db->query($sql);
     $row = $result->fetch_assoc();
 
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $item_category = $row['item_category'];
     $item_image = $row['item_image'];
     $status = $row['status'];
-    $itemid = $row['id'];
+    $itemid = $row['item_id'];
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Check if an image was uploaded, if not, keep the existing image
         $update_image = !empty($item_image) ? ", item_image='$item_image'" : "";
 
-        $sql = "UPDATE items SET item_name='$item_name', item_category='$item_category', status='$status' $update_image WHERE id='$itemid'";
+        $sql = "UPDATE items SET item_name='$item_name', item_category='$item_category', status='$status' $update_image WHERE item_id='$itemid'";
         $db->query($sql);
         header("Location: manage.php");
     }

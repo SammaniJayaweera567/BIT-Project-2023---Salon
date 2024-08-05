@@ -4,13 +4,22 @@ include_once '../init.php';
 
 $link = "Item Management";
 $breadcrumb_item = "Item";
-$breadcrumb_item_active = "Add Item Stock";
+$breadcrumb_item_active = "Edit Item Stock";
 
-$db = dbConn();
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    $stock_id = $_GET['id'];
+    $db = dbConn();
+    $sql = "SELECT * FROM item_stock WHERE id='$stock_id'";
+    $result = $db->query($sql);
+    $row = $result->fetch_assoc();
 
-// Fetch suppliers for the dropdown
-$supplier_query = "SELECT supplier_id, supplier_name FROM supplier";
-$supplier_result = $db->query($supplier_query);
+    $item_id = $row['item_id'];
+    $qty = $row['qty'];
+    $unit_price = $row['unit_price'];
+    $purchase_date = $row['purchase_date'];
+    $supplier_id = $row['supplier_id'];
+    $issued_qty = $row['issued_qty'];
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     extract($_POST);
@@ -20,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $purchase_date = dataClean($purchase_date);
     $supplier_id = dataClean($supplier_id);
     $issued_qty = dataClean($issued_qty);
+    $stock_id = dataClean($stock_id);
 
     $message = array();
     if (empty($item_id)) {
@@ -48,20 +58,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Check if item ID exists
+    $db = dbConn();
     $check_item_query = "SELECT * FROM items WHERE item_id = '$item_id'";
     $check_item_result = $db->query($check_item_query);
     if ($check_item_result->num_rows == 0) {
         $message['item_id'] = "Item ID does not exist!";
     }
 
-    // If no errors, insert stock into database
+    // If no errors, update stock in the database
     if (empty($message)) {
-        $insert_query = "INSERT INTO item_stock (item_id, qty, unit_price, purchase_date, supplier_id, issued_qty) VALUES ('$item_id', '$qty', '$unit_price', '$purchase_date', '$supplier_id', '0')";
-        $insert_result = $db->query($insert_query);
-        if ($insert_result) {
+        $update_query = "UPDATE item_stock SET item_id='$item_id', qty='$qty', unit_price='$unit_price', purchase_date='$purchase_date', supplier_id='$supplier_id', issued_qty='$issued_qty' WHERE id='$stock_id'";
+        $update_result = $db->query($update_query);
+        if ($update_result) {
             header("Location: manage.php");
         } else {
-            $message['error'] = "Failed to add stock. Please try again.";
+            $message['error'] = "Failed to update stock. Please try again.";
         }
     }
 }
@@ -71,28 +82,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="col-12">
         <div class="card card-primary">
             <div class="card-header">
-                <h3 class="card-title">Add Item Stock</h3>
+                <h3 class="card-title">Edit Item Stock</h3>
             </div>
             <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                <input type="hidden" name="stock_id" value="<?= $stock_id ?>">
                 <div class="card-body">
                     <div class="form-group">
-                        <label for="item_id">Item Name</label>
-                        <?php
-                        $db = dbConn();
-                        $sql = "SELECT item_id, item_name FROM items"; // Include supplier_name
-                        $result = $db->query($sql);
-                        ?>
-                        <select class="form-control" id="item_id" name="item_id">
-                            <option value="">--</option>
-                            <?php while ($row = $result->fetch_assoc()) { ?>
-                                <option value="<?= $row['item_id'] ?>" <?= @$item_id == $row['item_id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($row['item_name']) ?> 
-                                </option>
-                            <?php } ?>
-                        </select>
+                        <label for="item_id">Item Stock ID</label>
+                        <input type="number" class="form-control" id="item_id" name="item_id" placeholder="Enter Item ID" value="<?= isset($item_id) ? htmlspecialchars($item_id) : '' ?>">
                         <span class="text-danger"><?= @$message['item_id'] ?></span>
                     </div>
-
                     <div class="form-group">
                         <label for="qty">Quantity</label>
                         <input type="number" class="form-control" id="qty" name="qty" placeholder="Enter Quantity" value="<?= isset($qty) ? htmlspecialchars($qty) : '' ?>">
@@ -109,26 +108,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <span class="text-danger"><?= @$message['purchase_date'] ?></span>
                     </div>
                     <div class="form-group">
-                        <label for="supplier_id">Supplier</label>
-                        <?php
-                        $db = dbConn();
-                        $sql = "SELECT supplier_id, supplier_name FROM supplier"; // Include supplier_name
-                        $result = $db->query($sql);
-                        ?>
-                        <select class="form-control" id="supplier_id" name="supplier_id">
-                            <option value="">--</option>
-                            <?php while ($row = $result->fetch_assoc()) { ?>
-                                <option value="<?= $row['supplier_id'] ?>" <?= @$supplier_id == $row['supplier_id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($row['supplier_name']) ?> 
-                                </option>
-                            <?php } ?>
-                        </select>
+                        <label for="supplier_id">Supplier ID</label>
+                        <input type="number" class="form-control" id="supplier_id" name="supplier_id" placeholder="Enter Supplier ID" value="<?= isset($supplier_id) ? htmlspecialchars($supplier_id) : '' ?>">
                         <span class="text-danger"><?= @$message['supplier_id'] ?></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="issued_qty">Issued Quantity</label>
+                        <input type="number" class="form-control" id="issued_qty" name="issued_qty" placeholder="Enter Issued Quantity" value="<?= isset($issued_qty) ? htmlspecialchars($issued_qty) : 0 ?>">
+                        <span class="text-danger"><?= @$message['issued_qty'] ?></span>
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-primary">Add Stock</button>
-                    <a href="manage.php" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Update Stock</button>
+                    <a href="manage_stock.php" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>

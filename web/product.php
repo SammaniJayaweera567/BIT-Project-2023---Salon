@@ -36,7 +36,7 @@ include '../function.php'; // Ensure this path is correct
     <!-- Single Page Header End -->
 
     <!-- Fruits Shop Start -->
-    <div class="container-fluid fruite py-5">
+    <div class="container-fluid fruite p-5" style="background-color: #a7daff4d;">
         <div class="container py-5">
             <h1 class="mb-4">Beauty Products</h1>
             <div class="row g-4">
@@ -125,7 +125,7 @@ include '../function.php'; // Ensure this path is correct
                                 <?php
                                 $db = dbConn();
                                 if ($db) {
-                                    $sql = "SELECT
+                                  $sql = "SELECT
                                             item_stock.id,
                                             items.item_name,
                                             items.item_image,
@@ -144,12 +144,12 @@ include '../function.php'; // Ensure this path is correct
                                         while ($row = $result->fetch_assoc()) {
                                             ?>
                                             <div class="col-md-6 col-lg-4 col-xl-3">
-                                                <div class="rounded position-relative fruite-item">
+                                                <div class="rounded position-relative beauty-item bg-white p-2">
                                                     <div class="products-img">
-                                                        <img src="assets/img/<?= htmlspecialchars($row['item_image']) ?>" class="img-fluid" alt="<?= htmlspecialchars($row['item_name']) ?>">
+                                                        <img src="../system/items/<?= ($row['item_image']) ?>" class="img-fluid">
                                                     </div>
-                                                    <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                                                        <h4><?= htmlspecialchars($row['item_name']) ?></h4>
+                                                    <div class="p-4 border-none border-top-0 rounded-bottom item-body">
+                                                        <h5><?= htmlspecialchars($row['item_name']) ?></h5>
                                                         <div class="d-flex justify-content-between flex-lg-wrap">
                                                             <form method="post" action="shopping_cart.php">
                                                                 <p class="text-dark fs-5 fw-bold mb-0"><?= number_format($row['unit_price'], 2) ?></p>

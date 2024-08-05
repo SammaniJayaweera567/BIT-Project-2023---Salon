@@ -6,6 +6,11 @@ $link = "Item Management";
 $breadcrumb_item = "Item";
 $breadcrumb_item_active = "Add";
 
+// Fetch categories for dropdown
+$db = dbConn();
+$categories_query = "SELECT * FROM item_category WHERE status = 1";
+$categories_result = $db->query($categories_query);
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     extract($_POST);
     $item_name = dataClean($item_name);
@@ -49,15 +54,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (empty($message)) {
         $db = dbConn();
-        $sql = "INSERT INTO items (item_name, item_category, item_image, status) VALUES ('$item_name', '$item_category', '$item_image', '$status')";
+        // Assuming 'status' should be an integer in your database schema, with 1 for 'Active' and 0 for 'Inactive'
+        $status_value = ($status === 'Active') ? 1 : 0;
+        $sql = "INSERT INTO items (item_name, item_category, item_image, status) VALUES ('$item_name', '$item_category', '$item_image', '$status_value')";
         $db->query($sql);
         header("Location: manage.php");
     }
 }
 ?>
+
 <div class="row">
     <div class="col-12">
-        <a href="" class="btn btn-dark mb-3"><i class="fas fa-plus-circle"></i> Item Management</a>
+<!--        <a href="" class="btn btn-dark mb-3"><i class="fas fa-plus-circle"></i>Add New Item</a>-->
         <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title">Add New Item</h3>
@@ -72,7 +80,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div class="form-group col-md-6">
                             <label for="item_category">Item Category</label>
-                            <input type="text" class="form-control" id="item_category" name="item_category" placeholder="Enter Item Category" value="<?= @$item_category ?>">
+                            <select class="form-control" id="item_category" name="item_category">
+                                <option value="">Select Category</option>
+                                <?php while ($row = $categories_result->fetch_assoc()): ?>
+                                    <option value="<?= htmlspecialchars($row['id']) ?>" <?= (isset($item_category) && $item_category == $row['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($row['category_name']) ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
                             <span class="text-danger"><?= @$message['item_category'] ?></span>
                         </div>
                     </div>
@@ -84,13 +99,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                     <div class="form-group">
                         <label for="status">Status</label>
-                        <input type="text" class="form-control" id="status" name="status" placeholder="Enter Status" value="<?= @$status ?>">
+                        <select class="form-control" id="status" name="status">
+                            <option value="">Select Status</option>
+                            <option value="Active" <?= (isset($status) && $status == 'Active') ? 'selected' : '' ?>>Active</option>
+                            <option value="Inactive" <?= (isset($status) && $status == 'Inactive') ? 'selected' : '' ?>>Inactive</option>
+                        </select>
                         <span class="text-danger"><?= @$message['status'] ?></span>
                     </div>
 
                 </div>
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary">Submit</button>
+                    <a href="manage.php" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>

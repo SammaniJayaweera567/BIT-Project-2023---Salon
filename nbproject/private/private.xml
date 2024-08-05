@@ -3,22 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/laragon/www/sms/system/layouts.php</file>
-            <file>file:/C:/laragon/www/sms/qr_scanner/qr_scanner/instascan.min.js</file>
-            <file>file:/C:/laragon/www/sms/system/menu.php</file>
-            <file>file:/C:/laragon/www/sms/system/appointments/qr_scan.php</file>
-            <file>file:/C:/laragon/www/sms/system/supplier/add.php</file>
-            <file>file:/C:/laragon/www/sms/system/login.php</file>
-            <file>file:/C:/laragon/www/sms/system/dashboard.php</file>
-            <file>file:/C:/laragon/www/sms/system/index.php</file>
-            <file>file:/C:/laragon/www/sms/function.php</file>
-            <file>file:/C:/laragon/www/sms/mail.php</file>
-            <file>file:/C:/laragon/www/sms/system/logout.php</file>
-            <file>file:/C:/laragon/www/sms/qr_scanner/qr_scanner/app.js</file>
-            <file>file:/C:/laragon/www/sms/web/assets/js/main.js</file>
-            <file>file:/C:/laragon/www/sms/system/appointments/manage.php</file>
-            <file>file:/C:/laragon/www/sms/system/appointments/issue_jobcard.php</file>
-            <file>file:/C:/laragon/www/sms/web/booking.php</file>
+            <file>file:/C:/laragon/www/sms/system/inventory/manage.php</file>
+            <file>file:/C:/laragon/www/sms/system/inventory/edit_stock.php</file>
+            <file>file:/C:/laragon/www/sms/web/chackout.php</file>
+            <file>file:/C:/laragon/www/sms/system/inventory/manage_1.php</file>
+            <file>file:/C:/laragon/www/sms/system/inventory/add_stock.php</file>
+            <file>file:/C:/laragon/www/sms/web/checkout.php</file>
+            <file>file:/C:/laragon/www/sms/web/product.php</file>
+            <file>file:/C:/laragon/www/sms/web/cart.php</file>
+            <file>file:/C:/laragon/www/sms/web/shopping_cart.php</file>
         </group>
     </open-files>
 </project-private>

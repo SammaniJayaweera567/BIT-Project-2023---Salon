@@ -91,3 +91,11 @@ img.img-fluid.w-100.h-100.rounded.bridal-service{
     box-shadow: rgba(12, 29, 44, 0.8) -5px 5px, rgba(12, 29, 44, 0.5) -10px 10px;
     border-radius: 10px;
 }
+
+div#bank_details_container {
+    padding: 20px;
+    background: #2d556a;
+    padding: 30px !important;
+    border-radius: 20px;
+    color: white;
+}

@@ -41,7 +41,6 @@ $breadcrumb_item_active = "Manage";
                             <th>Service Category Name</th>
                             <th>Sub Service Name</th>
                             <th>Service Name</th>
-                            <th>Description</th>
                             <th>Duration (minutes)</th>
                             <th>Price (LKR)</th>
                             <th></th>
@@ -58,7 +57,6 @@ $breadcrumb_item_active = "Manage";
                                     <td><?= $row['ServiceCategoryName'] ?></td>
                                     <td><?= $row['SubServiceName'] ?></td>
                                     <td><?= $row['ServiceName'] ?></td>
-                                    <td><?= $row['Description'] ?></td>
                                     <td><?= $row['Duration'] ?></td>
                                     <td><?= $row['Price'] ?></td>
                                     <!--Pass serviceid to edit.php-->

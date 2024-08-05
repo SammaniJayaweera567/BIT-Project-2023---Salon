@@ -233,19 +233,54 @@ if (!isset($_SESSION['USERID'])) {
 
                                     $menu_url = SYS_URL . $row['Path'] . '/' . $row['File'] . '.php';
 
+                                    //for active file
                                     $menu_url_without_file = preg_replace('/\/[^\/]*$/', '', $menu_url);
 
                                     $active_class = ($url_without_file == $menu_url_without_file ) ? 'active' : '';
-                                    ?>
-                                    <li class="nav-item">
-                                        <a href="<?= $menu_url ?>" class="nav-link <?= $active_class ?>">
-                                            <i class="nav-icon <?= $row['Icon'] ?>"></i>
-                                            <p>
-                                                <?= $row['Name'] ?>                
-                                            </p>
-                                        </a>
-                                    </li>
-                                    <?php
+
+                                    $module_id = $row['ModuleId'];
+                                    $sql = "SELECT * FROM sub_modules WHERE module_id='$module_id'";
+                                    //run the query
+                                    $result_sub_module = $db->query($sql);
+                                    if ($result_sub_module->num_rows > 0) {
+                                        ?>
+                                        <li class="nav-item">
+                                            <a href="<?= $menu_url ?>" class="nav-link">
+                                                <i class="nav-icon fas fa-chart-pie"></i>
+                                                <p>
+                                                    <?= $row['Name'] ?>
+                                                    <i class="right fas fa-angle-left"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview" style="display: none;">
+                                                <?php
+                                                while ($row_sub_module = $result_sub_module->fetch_assoc()) {
+                                                    $menu_url = SYS_URL . $row_sub_module['Path'] . '/' . $row_sub_module['File'] . '.php';
+                                                    ?> 
+                                                    <li class="nav-item">
+                                                        <a href="<?= $menu_url ?>" class="nav-link">
+                                                            <i class="far fa-circle nav-icon"></i>
+                                                            <p> <?= $row_sub_module['Name'] ?></p>
+                                                        </a>
+                                                    </li>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </ul>
+                                        </li>
+                                        <?php
+                                    } else {
+                                        ?>
+                                        <li class="nav-item">
+                                            <a href="<?= $menu_url ?>" class="nav-link <?= $active_class ?>">
+                                                <i class="nav-icon <?= $row['Icon'] ?>"></i>
+                                                <p>
+                                                    <?= $row['Name'] ?>                
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <?php
+                                    }
                                 }
                             }
                             ?>
