@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <div class="row">
     <div class="col-12">
-<!--        <a href="" class="btn btn-dark mb-3"><i class="fas fa-plus-circle"></i>Add New Item</a>-->
+        <a href="manage.php" class="btn btn-info mb-2"><i class="fa fa-undo"></i> Go Back</a>
         <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title">Add New Item</h3>

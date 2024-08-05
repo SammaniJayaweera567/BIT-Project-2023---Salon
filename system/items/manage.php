@@ -33,7 +33,6 @@ $result = $db->query($query);
     <div class="col-12">
         <a href="<?= SYS_URL ?>items/add.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> Add New Item</a>
         <a href="<?= SYS_URL ?>items/add_category.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> Add Item Category</a>
-        <a href="<?= SYS_URL ?>items/add_stock.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> Add Item Stock</a>
         <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title">Manage Items</h3>

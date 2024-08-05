@@ -10,21 +10,13 @@ $breadcrumb_item_active = "Manage";
 <div class="row">
     <div class="col-12">
         <!--Add 'new' button hyperlink-->
-        <a href="<?= SYS_URL ?>customers/add.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> New</a>
+        <a href="<?= SYS_URL ?>customers/add.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> Add New Customer</a>
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Customer Details</h3>
 
                 <div class="card-tools">
-                    <div class="input-group input-group-sm" style="width: 150px;">
-                        <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
-
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-default">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
+                   
                 </div>
             </div>
             <!-- /.card-header -->
@@ -101,11 +93,11 @@ include '../layouts.php';
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     $('#customers').DataTable({
       "paging": true,
-      "lengthChange": false,
-      "searching": false,
+      "lengthChange": true,
+      "searching": true,
       "ordering": true,
       "info": true,
-      "autoWidth": false,
+      "autoWidth": true,
       "responsive": true,
     });
   });

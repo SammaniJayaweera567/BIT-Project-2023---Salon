@@ -5,10 +5,15 @@ include_once '../init.php';
 $link = "Item Management";
 $breadcrumb_item = "Item";
 $breadcrumb_item_active = "Update";
- extract($_GET);
+extract($_GET);
 extract($_POST);
+
+$db = dbConn();
+$categories_query = "SELECT * FROM item_category WHERE status = 1";
+$categories_result = $db->query($categories_query);
+
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-   
+
     $db = dbConn();
     $sql = "SELECT * FROM items WHERE item_id='$id'";
     $result = $db->query($sql);
@@ -22,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    
+
     $item_name = dataClean($item_name);
     $item_category = dataClean($item_category);
     $status = dataClean($status);
@@ -61,9 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Update item details in database
     if (empty($message)) {
         $db = dbConn();
-        
-        
-        echo $sql = "UPDATE items SET item_name='$item_name', item_category='$item_category', status='$status' ,item_image='$item_image' WHERE item_id='$item_id'";
+
+        $sql = "UPDATE items SET item_name='$item_name', item_category='$item_category', status='$status' ,item_image='$item_image' WHERE item_id='$item_id'";
         $db->query($sql);
         //header("Location: manage.php");
     }
@@ -77,28 +81,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" enctype="multipart/form-data">
                 <div class="card-body">
-                    <div class="form row">
-                        <div class="form-group col-md-6">
-                            <label for="item_name">Item Name</label>
-                            <input type="text" class="form-control" id="item_name" name="item_name" placeholder="Enter Item Name" value="<?= @$item_name ?>">
-                            <span class="text-danger"><?= @$message['item_name'] ?></span>
-                        </div>
-                        <div class="form-group col-md-6" id="item_category" name="item_category">
-                            <label for="item_category">Item Category</label>
-                            <input type="text" class="form-control" id="item_category" name="item_category" placeholder="Enter Item Category" value="<?= @$item_category ?>">
-                            <span class="text-danger"><?= @$message['item_category'] ?></span>
-                        </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="item_id">Item ID</label>
+                        <input type="text" class="form-control" id="item_id" name="item_id" value="<?= htmlspecialchars($item_id) ?>" readonly> 
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-6">
+                        <label for="item_name">Item Name</label>
+                        <input type="text" class="form-control" id="item_name" name="item_name" placeholder="Enter Item Name" value="<?= @$item_name ?>">
+                        <span class="text-danger"><?= @$message['item_name'] ?></span>
+                    </div>
+                    <div class="form-group col-md-6" id="item_category" name="item_category">
+                        <label for="item_category">Item Category</label>
+                        <select class="form-control" id="item_category" name="item_category">
+                            <option value="">Select Category</option>
+                            <?php while ($row = $categories_result->fetch_assoc()): ?>
+                                <option value="<?= htmlspecialchars($row['id']) ?>" <?= (isset($item_category) && $item_category == $row['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($row['category_name']) ?>
+                                </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-6">
                         <label for="item_image">Item Image</label>
                         <input type="file" class="form-control" id="item_image" name="item_image">
                         <span class="text-danger"><?= @$message['item_image'] ?></span>
                         <?php if (!empty($item_image)) : ?>
                             <img src="<?= $item_image ?>" class="img-fluid mt-2" style="max-height: 200px;" alt="Item Image">
                         <?php endif; ?>
-                            <input type="text" name="old_image" value="<?= $item_image ?>">
+                        <div class="form-group col-md-6" style="display:none;"> 
+                            <input type="hidden" name="old_image" value="<?= htmlspecialchars($item_image) ?>">
+                        </div>
                     </div>
-                       <div class="form-group">
+                    <div class="form-group col-md-6">
                         <label for="status">Status</label>
                         <select class="form-control" id="status" name="status">
                             <option value="">Select Status</option>
@@ -110,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 </div>
                 <div class="card-footer">
-                    <input type="text" name="item_id" value="<?= $item_id ?>">
+
                     <button type="submit" class="btn btn-primary">Update</button>
                     <a href="manage.php" class="btn btn-secondary">Cancel</a>
                 </div>

@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <div class="row">
     <div class="col-12">
+        <a href="manage.php" class="btn btn-info mb-2"><i class="fa fa-undo"></i> Go Back</a>
         <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title">Add Item Category</h3>
@@ -64,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <input type="text" class="form-control" id="category_name" name="category_name" placeholder="Enter Category Name" value="<?= isset($category_name) ? htmlspecialchars($category_name) : '' ?>">
                         <span class="text-danger"><?= @$message['category_name'] ?></span>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="status">Status</label>
                         <select class="form-control" id="status" name="status">

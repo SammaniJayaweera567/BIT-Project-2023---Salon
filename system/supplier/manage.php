@@ -10,7 +10,7 @@ $breadcrumb_item_active = "Manage";
 <div class="row">
     <div class="col-12">
         <!-- Add 'new' button hyperlink -->
-        <a href="<?= SYS_URL ?>supplier/add.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> New</a>
+        <a href="<?= SYS_URL ?>supplier/add.php" class="btn btn-dark mb-2"><i class="fas fa-plus-circle"></i> Add New Supplier</a>
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Supplier Details</h3>
